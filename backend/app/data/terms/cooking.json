@@ -1,0 +1,74 @@
+[
+  {
+    "term": "ジャム",
+    "aliases": ["jam", "果酱"],
+    "category": "ingredient",
+    "translation": "果酱",
+    "meaning": "水果等食材加糖熬煮后制成的酱状保存食品。",
+    "examples": ["イチゴジャムを瓶詰めにする。"],
+    "notes": "料理语境不要译成游戏术语；与「ジャム選手権」等连用仍指果酱。"
+  },
+  {
+    "term": "下茹で",
+    "aliases": ["下ゆで", "blanch"],
+    "category": "technique",
+    "translation": "焯水 / 预煮",
+    "meaning": "正式烹饪前先用热水短暂煮一下食材。",
+    "examples": ["野菜を下茹でしてから炒める。"],
+    "notes": "常见料理步骤，不要漏译。"
+  },
+  {
+    "term": "中火",
+    "aliases": ["中火力"],
+    "category": "technique",
+    "translation": "中火",
+    "meaning": "炉灶中等火力，介于大火与小火之间。",
+    "examples": ["中火で15分ほど煮込む。"],
+    "notes": "中文可直接保留「中火」。"
+  },
+  {
+    "term": "弱火",
+    "aliases": ["小火", "とろ火"],
+    "category": "technique",
+    "translation": "小火 / 文火",
+    "meaning": "炉灶最小或接近最小的火力。",
+    "examples": ["弱火でとろとろになるまで煮る。"],
+    "notes": "「とろ火」多指小火慢煮。"
+  },
+  {
+    "term": "静観",
+    "aliases": ["寝かせる", "マリネ"],
+    "category": "technique",
+    "translation": "静置 / 浸泡入味",
+    "meaning": "烹饪中让食材放置一段时间使味道渗透或水分析出。",
+    "examples": ["砂糖を入れて3時間静観する。"],
+    "notes": "果酱/腌渍语境常译「静置」「浸泡」。"
+  },
+  {
+    "term": "泡立て",
+    "aliases": ["アク", "浮き輪"],
+    "category": "technique",
+    "translation": "浮沫 / 血沫",
+    "meaning": "炖煮时浮到表面的泡沫杂质，通常需要撇去。",
+    "examples": ["泡立てを取り除いてから煮込む。"],
+    "notes": "也可按语境译「浮沫、血沫」。"
+  },
+  {
+    "term": "瓶詰め",
+    "aliases": ["瓶詰", "ジャarring"],
+    "category": "technique",
+    "translation": "装瓶 / 罐装",
+    "meaning": "把做好的果酱等装入消毒过的玻璃瓶保存。",
+    "examples": ["熱いうちに瓶詰めする。"],
+    "notes": "果酱视频高频步骤。"
+  },
+  {
+    "term": "分量",
+    "aliases": ["グラム", "g"],
+    "category": "measure",
+    "translation": "用量 / 分量",
+    "meaning": "食材的重量或配比。",
+    "examples": ["イチゴの分量を量る。"],
+    "notes": "recipe 语境固定说法。"
+  }
+]

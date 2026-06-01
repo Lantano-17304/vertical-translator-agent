@@ -1,0 +1,15 @@
+{
+  "name": "ai-translator-frontend",
+  "version": "1.0.0",
+  "description": "BFF node layer and frontend UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^4.0.0"
+  }
+}

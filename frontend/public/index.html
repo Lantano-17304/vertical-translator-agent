@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>垂直领域智能翻译 Agent</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f5f7fa; color: #333; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; color: #2c3e50; }
+        textarea { width: 100%; height: 100px; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; font-size: 16px;}
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .result-box { margin-top: 12px; padding: 15px; border: 1px solid #eee; border-radius: 4px; background-color: #f9f9f9; min-height: 150px; white-space: pre-wrap; font-size: 16px; line-height: 1.5; }
+        .thought { color: #888; font-style: italic; font-size: 14px;}
+        .translation { color: #2c3e50; font-weight: 500; }
+        .thought-box { margin-top: 12px; padding: 12px 15px; border: 1px dashed #ccc; border-radius: 4px; background-color: #fafafa; white-space: pre-wrap; line-height: 1.5; }
+        .toggle-row { margin-top: 20px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #555; }
+        .result-label { margin-top: 16px; font-size: 13px; color: #95a5a6; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 智能领域翻译 Agent</h1>
+        <p>输入含有游戏黑话或专有名词的外语：</p>
+        <textarea id="inputText" placeholder="例如：このゲームのデバフがエグい..."></textarea>
+        <button id="translateBtn" onclick="startTranslation()">开始翻译</button>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;">
+
+        <p>▶️ 或者粘贴 YouTube 链接，自动抓取字幕并翻译：</p>
+        <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px; font-size:15px; box-sizing:border-box;">
+        <button id="youtubeBtn" onclick="startYoutubeTranslation()" style="background-color:#e74c3c;">页面预览翻译</button>
+        <button id="youtubeSrtBtn" onclick="downloadYoutubeSrt()" style="background-color:#8e44ad;">下载翻译字幕(SRT)</button>
+        <span id="youtubeSrtStatus" style="margin-left: 10px; color: #7f8c8d; font-size: 14px;"></span>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;">
+
+        <p>📁 或者批量翻译文件 (支持 .txt / .srt):</p>
+        <input type="file" id="fileInput" accept=".txt,.srt" style="margin-bottom: 10px;">
+        <br>
+        <button id="fileTranslateBtn" onclick="startFileTranslation()" style="background-color: #27ae60;">上传并翻译文件</button>
+        <span id="fileStatus" style="margin-left: 10px; color: #7f8c8d; font-size: 14px;"></span>
+
+        <label class="toggle-row">
+            <input type="checkbox" id="showThoughts" onchange="toggleThoughts()">
+            显示 Agent 思考过程（ReAct 推理 / 工具调用 / RAG 检索）
+        </label>
+
+        <div id="thoughtBox" class="thought-box thought hidden"></div>
+
+        <div class="result-label">译文</div>
+        <div id="resultBox" class="result-box">等候输入...</div>
+    </div>
+
+    <script>
+        // 思考过程开关：默认隐藏，只显示干净译文
+        function toggleThoughts() {
+            const show = document.getElementById('showThoughts').checked;
+            document.getElementById('thoughtBox').classList.toggle('hidden', !show);
+        }
+
+        // 通用：消费一个 SSE 流，思考过程与译文分开渲染
+        function consumeStream(sseUrl, btn, options) {
+            options = options || {};
+            const resultBox = document.getElementById('resultBox');
+            const thoughtBox = document.getElementById('thoughtBox');
+            btn.disabled = true;
+            if (!options.keepResult) {
+                resultBox.textContent = '';
+            }
+            thoughtBox.textContent = '';
+
+            const eventSource = new EventSource(sseUrl);
+
+            eventSource.onmessage = function(event) {
+                if (event.data === "[DONE]") {
+                    eventSource.close();
+                    btn.disabled = false;
+                    if (options.onDone) options.onDone();
+                    if (!options.keepResult && !resultBox.textContent.trim()) {
+                        resultBox.textContent = '（本次没有产生译文，可勾选上方开关查看 Agent 思考过程了解原因）';
+                    }
+                    return;
+                }
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'thought') {
+                        const span = document.createElement('span');
+                        span.textContent = data.content;
+                        thoughtBox.appendChild(span);
+                    } else if (data.type === 'token') {
+                        const span = document.createElement('span');
+                        span.className = 'translation';
+                        span.textContent = data.content;
+                        resultBox.appendChild(span);
+                    } else if (data.type === 'progress' && options.onProgress) {
+                        options.onProgress(data);
+                    } else if (data.type === 'srt' && options.onSrt) {
+                        options.onSrt(data);
+                    }
+                } catch (e) {
+                    console.error("解析流式数据出错", e, event.data);
+                }
+            };
+
+            eventSource.onerror = function(err) {
+                console.error("SSE Error:", err);
+                eventSource.close();
+                btn.disabled = false;
+                if (options.onError) {
+                    options.onError(err);
+                } else {
+                    resultBox.innerHTML += '\n<span style="color:red">[连接中断或出错]</span>';
+                }
+            };
+        }
+
+        async function startTranslation() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) return;
+            const btn = document.getElementById('translateBtn');
+            consumeStream(`/api/translate?text=${encodeURIComponent(text)}`, btn);
+        }
+
+        // 模式一：页面流式预览（不带时间轴，边翻边看）
+        async function startYoutubeTranslation() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            if (!url) {
+                alert("请先粘贴一个 YouTube 链接！");
+                return;
+            }
+            const btn = document.getElementById('youtubeBtn');
+            consumeStream(`/api/translate-youtube?url=${encodeURIComponent(url)}`, btn);
+        }
+
+        // 模式二：下载带时间轴的翻译 SRT（流式进度 + 可选 Agent 思考过程）
+        function downloadYoutubeSrt() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            if (!url) {
+                alert("请先粘贴一个 YouTube 链接！");
+                return;
+            }
+            const btn = document.getElementById('youtubeSrtBtn');
+            const status = document.getElementById('youtubeSrtStatus');
+            const resultBox = document.getElementById('resultBox');
+
+            status.textContent = "准备中…";
+            resultBox.textContent = "正在生成 SRT 字幕，请稍候…\n";
+
+            consumeStream(`/api/translate-youtube-srt?url=${encodeURIComponent(url)}`, btn, {
+                keepResult: true,
+                onProgress: function(data) {
+                    const msg = data.message || (`${data.done}/${data.total}`);
+                    status.textContent = msg;
+                    resultBox.textContent = "【SRT 导出中】\n" + msg + "\n\n（勾选上方开关可查看 Agent 思考过程）";
+                },
+                onSrt: function(data) {
+                    const blob = new Blob([data.content], { type: 'application/x-subrip;charset=utf-8' });
+                    const dlUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = dlUrl;
+                    a.download = data.filename || 'translated.srt';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(dlUrl);
+                    status.textContent = "✅ 已生成并下载 " + (data.filename || 'translated.srt');
+                    resultBox.textContent = "【SRT 导出完成】\n已下载：" + (data.filename || 'translated.srt');
+                },
+                onError: function() {
+                    status.textContent = "❌ 连接中断或出错";
+                    resultBox.textContent += "\n[连接中断或出错]";
+                },
+                onDone: function() {
+                    if (status.textContent.indexOf('✅') !== 0 && status.textContent.indexOf('❌') !== 0) {
+                        status.textContent = "已完成（若未自动下载，请查看思考过程了解原因）";
+                    }
+                }
+            });
+        }
+
+        async function startFileTranslation() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert("请先选择一个文件！");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const btn = document.getElementById('fileTranslateBtn');
+            const statusLabel = document.getElementById('fileStatus');
+            
+            btn.disabled = true;
+            statusLabel.textContent = "翻译中，请稍候（可能需要几十秒）...";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                // 发送到 Node.js 的代理路由
+                const response = await fetch('/api/translate-srt', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("翻译失败，状态码: " + response.status);
+                }
+
+                // 作为文件触发下载
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "translated_" + file.name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                
+                statusLabel.textContent = "✅ 翻译完成并已下载！";
+            } catch (e) {
+                console.error(e);
+                statusLabel.textContent = "❌ " + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

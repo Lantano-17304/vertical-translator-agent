@@ -1,0 +1,2644 @@
+[
+  {
+    "term": "彩虹社",
+    "aliases": [
+      "彩虹社",
+      "NIJISANJI",
+      "Nijisanji",
+      "彩虹社"
+    ],
+    "category": "nijisanji",
+    "translation": "彩虹社",
+    "meaning": "にじさんじ的中文常用称呼。",
+    "examples": [
+      "彩虹社所属liver。"
+    ],
+    "notes": "组织名，中文常用「彩虹社」。"
+  },
+  {
+    "term": "にじさんじ",
+    "aliases": [
+      "彩虹社",
+      "NIJISANJI",
+      "Nijisanji",
+      "彩虹社"
+    ],
+    "category": "nijisanji",
+    "translation": "彩虹社",
+    "meaning": "日本VTuber事务所；中文圈常称「彩虹社」。",
+    "examples": [
+      "にじさんじ所属の配信。"
+    ],
+    "notes": "可写作 NIJISANJI / Nijisanji。"
+  },
+  {
+    "term": "月ノ美兎",
+    "aliases": [
+      "月之美兔",
+      "Tsukino Mito",
+      "月ノ美兎"
+    ],
+    "category": "nijisanji",
+    "translation": "月之美兔",
+    "meaning": "彩虹社所属VTuber 月之美兔（Tsukino Mito）。",
+    "examples": [
+      "月ノ美兎の配信",
+      "月之美兔さん"
+    ],
+    "notes": "中文圈固定译名「月之美兔」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "勇気ちひろ",
+    "aliases": [
+      "勇气千寻",
+      "Yuuki Chihiro",
+      "勇気ちひろ"
+    ],
+    "category": "nijisanji",
+    "translation": "勇气千寻",
+    "meaning": "彩虹社所属VTuber 勇气千寻（Yuuki Chihiro）。",
+    "examples": [
+      "勇気ちひろの配信",
+      "勇气千寻さん"
+    ],
+    "notes": "中文圈固定译名「勇气千寻」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "える",
+    "aliases": [
+      "艾露",
+      "Elu",
+      "える"
+    ],
+    "category": "nijisanji",
+    "translation": "艾露",
+    "meaning": "彩虹社所属VTuber 艾露（Elu）。",
+    "examples": [
+      "えるの配信",
+      "艾露さん"
+    ],
+    "notes": "中文圈固定译名「艾露」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "樋口楓",
+    "aliases": [
+      "樋口枫",
+      "Higuchi Kaede",
+      "樋口楓"
+    ],
+    "category": "nijisanji",
+    "translation": "樋口枫",
+    "meaning": "彩虹社所属VTuber 樋口枫（Higuchi Kaede）。",
+    "examples": [
+      "樋口楓の配信",
+      "樋口枫さん"
+    ],
+    "notes": "中文圈固定译名「樋口枫」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "静凛",
+    "aliases": [
+      "静凛",
+      "Shizuka Rin"
+    ],
+    "category": "nijisanji",
+    "translation": "静凛",
+    "meaning": "彩虹社所属VTuber 静凛（Shizuka Rin）。",
+    "examples": [
+      "静凛の配信",
+      "静凛さん"
+    ],
+    "notes": "中文圈固定译名「静凛」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "渋谷ハジメ",
+    "aliases": [
+      "涩谷初",
+      "Shibuya Hajime",
+      "渋谷ハジメ",
+      "渋谷初"
+    ],
+    "category": "nijisanji",
+    "translation": "涩谷初",
+    "meaning": "彩虹社所属VTuber 涩谷初（Shibuya Hajime）。",
+    "examples": [
+      "渋谷ハジメの配信",
+      "涩谷初さん"
+    ],
+    "notes": "中文圈固定译名「涩谷初」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鈴谷アキ",
+    "aliases": [
+      "铃谷秋",
+      "Suzuya Aki",
+      "鈴谷アキ"
+    ],
+    "category": "nijisanji",
+    "translation": "铃谷秋",
+    "meaning": "彩虹社所属VTuber 铃谷秋（Suzuya Aki）。",
+    "examples": [
+      "鈴谷アキの配信",
+      "铃谷秋さん"
+    ],
+    "notes": "中文圈固定译名「铃谷秋」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "モイラ",
+    "aliases": [
+      "摩伊拉",
+      "Moira",
+      "モイラ"
+    ],
+    "category": "nijisanji",
+    "translation": "摩伊拉",
+    "meaning": "彩虹社所属VTuber 摩伊拉（Moira）。",
+    "examples": [
+      "モイラの配信",
+      "摩伊拉さん"
+    ],
+    "notes": "中文圈固定译名「摩伊拉」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鈴鹿詩子",
+    "aliases": [
+      "铃鹿诗子",
+      "Suzuka Utako",
+      "鈴鹿詩子"
+    ],
+    "category": "nijisanji",
+    "translation": "铃鹿诗子",
+    "meaning": "彩虹社所属VTuber 铃鹿诗子（Suzuka Utako）。",
+    "examples": [
+      "鈴鹿詩子の配信",
+      "铃鹿诗子さん"
+    ],
+    "notes": "中文圈固定译名「铃鹿诗子」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "宇志海いちご",
+    "aliases": [
+      "宇志海莓",
+      "Ushimi Ichigo",
+      "宇志海いちご"
+    ],
+    "category": "nijisanji",
+    "translation": "宇志海莓",
+    "meaning": "彩虹社所属VTuber 宇志海莓（Ushimi Ichigo）。",
+    "examples": [
+      "宇志海いちごの配信",
+      "宇志海莓さん"
+    ],
+    "notes": "中文圈固定译名「宇志海莓」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "家長むぎ",
+    "aliases": [
+      "家长麦",
+      "Ienaga Mugi",
+      "家長むぎ"
+    ],
+    "category": "nijisanji",
+    "translation": "家长麦",
+    "meaning": "彩虹社所属VTuber 家长麦（Ienaga Mugi）。",
+    "examples": [
+      "家長むぎの配信",
+      "家长麦さん"
+    ],
+    "notes": "中文圈固定译名「家长麦」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "夕陽リリ",
+    "aliases": [
+      "夕阳莉莉",
+      "Yuhi Riri",
+      "夕陽リリ"
+    ],
+    "category": "nijisanji",
+    "translation": "夕阳莉莉",
+    "meaning": "彩虹社所属VTuber 夕阳莉莉（Yuhi Riri）。",
+    "examples": [
+      "夕陽リリの配信",
+      "夕阳莉莉さん"
+    ],
+    "notes": "中文圈固定译名「夕阳莉莉」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "物述有栖",
+    "aliases": [
+      "物述有栖",
+      "Mononobe Alice"
+    ],
+    "category": "nijisanji",
+    "translation": "物述有栖",
+    "meaning": "彩虹社所属VTuber 物述有栖（Mononobe Alice）。",
+    "examples": [
+      "物述有栖の配信",
+      "物述有栖さん"
+    ],
+    "notes": "中文圈固定译名「物述有栖」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "文野環",
+    "aliases": [
+      "文野环",
+      "Fumino Tamaki",
+      "文野環"
+    ],
+    "category": "nijisanji",
+    "translation": "文野环",
+    "meaning": "彩虹社所属VTuber 文野环（Fumino Tamaki）。",
+    "examples": [
+      "文野環の配信",
+      "文野环さん"
+    ],
+    "notes": "中文圈固定译名「文野环」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "伏見ガク",
+    "aliases": [
+      "伏见学",
+      "Fushimi Gaku",
+      "伏見ガク",
+      "伏見学"
+    ],
+    "category": "nijisanji",
+    "translation": "伏见学",
+    "meaning": "彩虹社所属VTuber 伏见学（Fushimi Gaku）。",
+    "examples": [
+      "伏見ガクの配信",
+      "伏见学さん"
+    ],
+    "notes": "中文圈固定译名「伏见学」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ギルザレンIII世",
+    "aliases": [
+      "吉尔扎伦三世",
+      "Gilzaren III",
+      "ギルザレンIII世"
+    ],
+    "category": "nijisanji",
+    "translation": "吉尔扎伦三世",
+    "meaning": "彩虹社所属VTuber 吉尔扎伦三世（Gilzaren III）。",
+    "examples": [
+      "ギルザレンIII世の配信",
+      "吉尔扎伦三世さん"
+    ],
+    "notes": "中文圈固定译名「吉尔扎伦三世」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "剣持刀也",
+    "aliases": [
+      "剑持刀也",
+      "Kenmochi Toya",
+      "剣持刀也"
+    ],
+    "category": "nijisanji",
+    "translation": "剑持刀也",
+    "meaning": "彩虹社所属VTuber 剑持刀也（Kenmochi Toya）。",
+    "examples": [
+      "剣持刀也の配信",
+      "剑持刀也さん"
+    ],
+    "notes": "中文圈固定译名「剑持刀也」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "森中花咲",
+    "aliases": [
+      "森中花咲",
+      "Morinaka Kazaki"
+    ],
+    "category": "nijisanji",
+    "translation": "森中花咲",
+    "meaning": "彩虹社所属VTuber 森中花咲（Morinaka Kazaki）。",
+    "examples": [
+      "森中花咲の配信",
+      "森中花咲さん"
+    ],
+    "notes": "中文圈固定译名「森中花咲」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "叶",
+    "aliases": [
+      "叶",
+      "Kanae",
+      "葉"
+    ],
+    "category": "nijisanji",
+    "translation": "叶",
+    "meaning": "彩虹社所属VTuber 叶（Kanae）。",
+    "examples": [
+      "叶の配信",
+      "叶さん"
+    ],
+    "notes": "中文圈固定译名「叶」，指彩虹社（NIJISANJI）成员。（常写作「叶」，中文圈译名「叶」）"
+  },
+  {
+    "term": "赤羽葉子",
+    "aliases": [
+      "赤羽叶子",
+      "Akaba Youko",
+      "赤羽葉子"
+    ],
+    "category": "nijisanji",
+    "translation": "赤羽叶子",
+    "meaning": "彩虹社所属VTuber 赤羽叶子（Akaba Youko）。",
+    "examples": [
+      "赤羽葉子の配信",
+      "赤羽叶子さん"
+    ],
+    "notes": "中文圈固定译名「赤羽叶子」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "笹木咲",
+    "aliases": [
+      "笹木咲",
+      "Sasaki Saku"
+    ],
+    "category": "nijisanji",
+    "translation": "笹木咲",
+    "meaning": "彩虹社所属VTuber 笹木咲（Sasaki Saku）。",
+    "examples": [
+      "笹木咲の配信",
+      "笹木咲さん"
+    ],
+    "notes": "中文圈固定译名「笹木咲」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "闇夜乃モルル",
+    "aliases": [
+      "暗夜乃莫露露",
+      "Yamiyono Moruru",
+      "闇夜乃モルル"
+    ],
+    "category": "nijisanji",
+    "translation": "暗夜乃莫露露",
+    "meaning": "彩虹社所属VTuber 暗夜乃莫露露（Yamiyono Moruru）。",
+    "examples": [
+      "闇夜乃モルルの配信",
+      "暗夜乃莫露露さん"
+    ],
+    "notes": "中文圈固定译名「暗夜乃莫露露」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "本間ひまわり",
+    "aliases": [
+      "本间向日葵",
+      "Honma Himawari",
+      "本間ひまわり"
+    ],
+    "category": "nijisanji",
+    "translation": "本间向日葵",
+    "meaning": "彩虹社所属VTuber 本间向日葵（Honma Himawari）。",
+    "examples": [
+      "本間ひまわりの配信",
+      "本间向日葵さん"
+    ],
+    "notes": "中文圈固定译名「本间向日葵」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "魔界ノりりむ",
+    "aliases": [
+      "魔界之莉莉姆",
+      "Makaino Ririmu",
+      "魔界ノりりむ"
+    ],
+    "category": "nijisanji",
+    "translation": "魔界之莉莉姆",
+    "meaning": "彩虹社所属VTuber 魔界之莉莉姆（Makaino Ririmu）。",
+    "examples": [
+      "魔界ノりりむの配信",
+      "魔界之莉莉姆さん"
+    ],
+    "notes": "中文圈固定译名「魔界之莉莉姆」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "葛葉",
+    "aliases": [
+      "葛叶",
+      "Kuzuha",
+      "葛葉"
+    ],
+    "category": "nijisanji",
+    "translation": "葛叶",
+    "meaning": "彩虹社所属VTuber 葛叶（Kuzuha）。",
+    "examples": [
+      "葛葉の配信",
+      "葛叶さん"
+    ],
+    "notes": "中文圈固定译名「葛叶」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "雪汝",
+    "aliases": [
+      "雪汝",
+      "Setsuna"
+    ],
+    "category": "nijisanji",
+    "translation": "雪汝",
+    "meaning": "彩虹社所属VTuber 雪汝（Setsuna）。",
+    "examples": [
+      "雪汝の配信",
+      "雪汝さん"
+    ],
+    "notes": "中文圈固定译名「雪汝」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "椎名唯華",
+    "aliases": [
+      "椎名唯华",
+      "Shiina Yuika",
+      "椎名唯華"
+    ],
+    "category": "nijisanji",
+    "translation": "椎名唯华",
+    "meaning": "彩虹社所属VTuber 椎名唯华（Shiina Yuika）。",
+    "examples": [
+      "椎名唯華の配信",
+      "椎名唯华さん"
+    ],
+    "notes": "中文圈固定译名「椎名唯华」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ドーラ",
+    "aliases": [
+      "多拉",
+      "Dola",
+      "ドーラ"
+    ],
+    "category": "nijisanji",
+    "translation": "多拉",
+    "meaning": "彩虹社所属VTuber 多拉（Dola）。",
+    "examples": [
+      "ドーラの配信",
+      "多拉さん"
+    ],
+    "notes": "中文圈固定译名「多拉」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "海夜叉神",
+    "aliases": [
+      "海夜叉神",
+      "Marine Yaksa"
+    ],
+    "category": "nijisanji",
+    "translation": "海夜叉神",
+    "meaning": "彩虹社所属VTuber 海夜叉神（Marine Yaksa）。",
+    "examples": [
+      "海夜叉神の配信",
+      "海夜叉神さん"
+    ],
+    "notes": "中文圈固定译名「海夜叉神」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "名伽尾アズマ",
+    "aliases": [
+      "名伽尾吾妻",
+      "Nakao Azuma",
+      "名伽尾アズマ"
+    ],
+    "category": "nijisanji",
+    "translation": "名伽尾吾妻",
+    "meaning": "彩虹社所属VTuber 名伽尾吾妻（Nakao Azuma）。",
+    "examples": [
+      "名伽尾アズマの配信",
+      "名伽尾吾妻さん"
+    ],
+    "notes": "中文圈固定译名「名伽尾吾妻」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "出雲霞",
+    "aliases": [
+      "出云霞",
+      "Izumo Kasumi",
+      "出雲霞"
+    ],
+    "category": "nijisanji",
+    "translation": "出云霞",
+    "meaning": "彩虹社所属VTuber 出云霞（Izumo Kasumi）。",
+    "examples": [
+      "出雲霞の配信",
+      "出云霞さん"
+    ],
+    "notes": "中文圈固定译名「出云霞」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "轟京子",
+    "aliases": [
+      "轰京子",
+      "Todoroki Kyoko",
+      "轟京子"
+    ],
+    "category": "nijisanji",
+    "translation": "轰京子",
+    "meaning": "彩虹社所属VTuber 轰京子（Todoroki Kyoko）。",
+    "examples": [
+      "轟京子の配信",
+      "轰京子さん"
+    ],
+    "notes": "中文圈固定译名「轰京子」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "シスター・クレア",
+    "aliases": [
+      "修女·克蕾雅",
+      "Sister Cleaire",
+      "シスター・クレア"
+    ],
+    "category": "nijisanji",
+    "translation": "修女·克蕾雅",
+    "meaning": "彩虹社所属VTuber 修女·克蕾雅（Sister Cleaire）。",
+    "examples": [
+      "シスター・クレアの配信",
+      "修女·克蕾雅さん"
+    ],
+    "notes": "中文圈固定译名「修女·克蕾雅」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "花畑チャイカ",
+    "aliases": [
+      "花畑嘉依卡",
+      "Hanabatake Chaika",
+      "花畑チャイカ"
+    ],
+    "category": "nijisanji",
+    "translation": "花畑嘉依卡",
+    "meaning": "彩虹社所属VTuber 花畑嘉依卡（Hanabatake Chaika）。",
+    "examples": [
+      "花畑チャイカの配信",
+      "花畑嘉依卡さん"
+    ],
+    "notes": "中文圈固定译名「花畑嘉依卡」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鈴木勝",
+    "aliases": [
+      "铃木胜",
+      "Suzuki Masaru",
+      "鈴木勝"
+    ],
+    "category": "nijisanji",
+    "translation": "铃木胜",
+    "meaning": "彩虹社所属VTuber 铃木胜（Suzuki Masaru）。",
+    "examples": [
+      "鈴木勝の配信",
+      "铃木胜さん"
+    ],
+    "notes": "中文圈固定译名「铃木胜」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "安土桃",
+    "aliases": [
+      "安土桃",
+      "Momo Azuchi"
+    ],
+    "category": "nijisanji",
+    "translation": "安土桃",
+    "meaning": "彩虹社所属VTuber 安土桃（Momo Azuchi）。",
+    "examples": [
+      "安土桃の配信",
+      "安土桃さん"
+    ],
+    "notes": "中文圈固定译名「安土桃」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "卯月コウ",
+    "aliases": [
+      "卯月光",
+      "Uzuki Kou",
+      "卯月コウ"
+    ],
+    "category": "nijisanji",
+    "translation": "卯月光",
+    "meaning": "彩虹社所属VTuber 卯月光（Uzuki Kou）。",
+    "examples": [
+      "卯月コウの配信",
+      "卯月光さん"
+    ],
+    "notes": "中文圈固定译名「卯月光」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "緑仙",
+    "aliases": [
+      "绿仙",
+      "Ryuu Shen",
+      "緑仙"
+    ],
+    "category": "nijisanji",
+    "translation": "绿仙",
+    "meaning": "彩虹社所属VTuber 绿仙（Ryuu Shen）。",
+    "examples": [
+      "緑仙の配信",
+      "绿仙さん"
+    ],
+    "notes": "中文圈固定译名「绿仙」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "八朔ゆず",
+    "aliases": [
+      "八朔柚子",
+      "Hassaku Yuzu",
+      "八朔ゆず"
+    ],
+    "category": "nijisanji",
+    "translation": "八朔柚子",
+    "meaning": "彩虹社所属VTuber 八朔柚子（Hassaku Yuzu）。",
+    "examples": [
+      "八朔ゆずの配信",
+      "八朔柚子さん"
+    ],
+    "notes": "中文圈固定译名「八朔柚子」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "社築",
+    "aliases": [
+      "社筑",
+      "Yashiro Kizuku",
+      "社築"
+    ],
+    "category": "nijisanji",
+    "translation": "社筑",
+    "meaning": "彩虹社所属VTuber 社筑（Yashiro Kizuku）。",
+    "examples": [
+      "社築の配信",
+      "社筑さん"
+    ],
+    "notes": "中文圈固定译名「社筑」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "神田笑一",
+    "aliases": [
+      "神田笑一",
+      "Kanda Shoichi"
+    ],
+    "category": "nijisanji",
+    "translation": "神田笑一",
+    "meaning": "彩虹社所属VTuber 神田笑一（Kanda Shoichi）。",
+    "examples": [
+      "神田笑一の配信",
+      "神田笑一さん"
+    ],
+    "notes": "中文圈固定译名「神田笑一」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鳴門こがね",
+    "aliases": [
+      "鸣门小金",
+      "Naruto Kogane",
+      "鳴門こがね"
+    ],
+    "category": "nijisanji",
+    "translation": "鸣门小金",
+    "meaning": "彩虹社所属VTuber 鸣门小金（Naruto Kogane）。",
+    "examples": [
+      "鳴門こがねの配信",
+      "鸣门小金さん"
+    ],
+    "notes": "中文圈固定译名「鸣门小金」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "飛鳥ひな",
+    "aliases": [
+      "飞鸟雏",
+      "Asuka Hina",
+      "飛鳥ひな"
+    ],
+    "category": "nijisanji",
+    "translation": "飞鸟雏",
+    "meaning": "彩虹社所属VTuber 飞鸟雏（Asuka Hina）。",
+    "examples": [
+      "飛鳥ひなの配信",
+      "飞鸟雏さん"
+    ],
+    "notes": "中文圈固定译名「飞鸟雏」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "春崎エアル",
+    "aliases": [
+      "春崎艾尔",
+      "Harusaki Air",
+      "春崎エアル"
+    ],
+    "category": "nijisanji",
+    "translation": "春崎艾尔",
+    "meaning": "彩虹社所属VTuber 春崎艾尔（Harusaki Air）。",
+    "examples": [
+      "春崎エアルの配信",
+      "春崎艾尔さん"
+    ],
+    "notes": "中文圈固定译名「春崎艾尔」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "雨森小夜",
+    "aliases": [
+      "雨森小夜",
+      "Amemori Sayo"
+    ],
+    "category": "nijisanji",
+    "translation": "雨森小夜",
+    "meaning": "彩虹社所属VTuber 雨森小夜（Amemori Sayo）。",
+    "examples": [
+      "雨森小夜の配信",
+      "雨森小夜さん"
+    ],
+    "notes": "中文圈固定译名「雨森小夜」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鷹宮リオン",
+    "aliases": [
+      "鹰宫莉音",
+      "Takamiya Rion",
+      "鷹宮リオン"
+    ],
+    "category": "nijisanji",
+    "translation": "鹰宫莉音",
+    "meaning": "彩虹社所属VTuber 鹰宫莉音（Takamiya Rion）。",
+    "examples": [
+      "鷹宮リオンの配信",
+      "鹰宫莉音さん"
+    ],
+    "notes": "中文圈固定译名「鹰宫莉音」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "舞元啓介",
+    "aliases": [
+      "舞元启介",
+      "Maimoto Keisuke",
+      "舞元啓介"
+    ],
+    "category": "nijisanji",
+    "translation": "舞元启介",
+    "meaning": "彩虹社所属VTuber 舞元启介（Maimoto Keisuke）。",
+    "examples": [
+      "舞元啓介の配信",
+      "舞元启介さん"
+    ],
+    "notes": "中文圈固定译名「舞元启介」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "竜胆尊",
+    "aliases": [
+      "龙胆尊",
+      "Rindou Mikoto",
+      "竜胆尊"
+    ],
+    "category": "nijisanji",
+    "translation": "龙胆尊",
+    "meaning": "彩虹社所属VTuber 龙胆尊（Rindou Mikoto）。",
+    "examples": [
+      "竜胆尊の配信",
+      "龙胆尊さん"
+    ],
+    "notes": "中文圈固定译名「龙胆尊」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "でびでび・でびる",
+    "aliases": [
+      "德比德比·德比鲁",
+      "Debidebi Debiru",
+      "でびでび・でびる"
+    ],
+    "category": "nijisanji",
+    "translation": "德比德比·德比鲁",
+    "meaning": "彩虹社所属VTuber 德比德比·德比鲁（Debidebi Debiru）。",
+    "examples": [
+      "でびでび・でびるの配信",
+      "德比德比·德比鲁さん"
+    ],
+    "notes": "中文圈固定译名「德比德比·德比鲁」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "桜凛月",
+    "aliases": [
+      "樱凛月",
+      "Sakura Ritsuki",
+      "桜凛月"
+    ],
+    "category": "nijisanji",
+    "translation": "樱凛月",
+    "meaning": "彩虹社所属VTuber 樱凛月（Sakura Ritsuki）。",
+    "examples": [
+      "桜凛月の配信",
+      "樱凛月さん"
+    ],
+    "notes": "中文圈固定译名「樱凛月」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "町田ちま",
+    "aliases": [
+      "町田千麻",
+      "Machita Chima",
+      "町田ちま"
+    ],
+    "category": "nijisanji",
+    "translation": "町田千麻",
+    "meaning": "彩虹社所属VTuber 町田千麻（Machita Chima）。",
+    "examples": [
+      "町田ちまの配信",
+      "町田千麻さん"
+    ],
+    "notes": "中文圈固定译名「町田千麻」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "月見しずく",
+    "aliases": [
+      "月见雫",
+      "Tsukimi Shizuku",
+      "月見しずく",
+      "月見雫"
+    ],
+    "category": "nijisanji",
+    "translation": "月见雫",
+    "meaning": "彩虹社所属VTuber 月见雫（Tsukimi Shizuku）。",
+    "examples": [
+      "月見しずくの配信",
+      "月见雫さん"
+    ],
+    "notes": "中文圈固定译名「月见雫」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "ジョー・力一",
+    "aliases": [
+      "周·力一",
+      "Joe Rikiichi",
+      "ジョー・力一"
+    ],
+    "category": "nijisanji",
+    "translation": "周·力一",
+    "meaning": "彩虹社所属VTuber 周·力一（Joe Rikiichi）。",
+    "examples": [
+      "ジョー・力一の配信",
+      "周·力一さん"
+    ],
+    "notes": "中文圈固定译名「周·力一」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "遠北千南",
+    "aliases": [
+      "远北千南",
+      "Achikita Chinami",
+      "遠北千南"
+    ],
+    "category": "nijisanji",
+    "translation": "远北千南",
+    "meaning": "彩虹社所属VTuber 远北千南（Achikita Chinami）。",
+    "examples": [
+      "遠北千南の配信",
+      "远北千南さん"
+    ],
+    "notes": "中文圈固定译名「远北千南」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "成瀬鳴",
+    "aliases": [
+      "成濑鸣",
+      "Naruse Naru",
+      "成瀬鳴"
+    ],
+    "category": "nijisanji",
+    "translation": "成濑鸣",
+    "meaning": "彩虹社所属VTuber 成濑鸣（Naruse Naru）。",
+    "examples": [
+      "成瀬鳴の配信",
+      "成濑鸣さん"
+    ],
+    "notes": "中文圈固定译名「成濑鸣」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "ベルモンド・バンデラス",
+    "aliases": [
+      "贝尔蒙德·班德拉斯",
+      "Belmond Banderas",
+      "ベルモンド・バンデラス"
+    ],
+    "category": "nijisanji",
+    "translation": "贝尔蒙德·班德拉斯",
+    "meaning": "彩虹社所属VTuber 贝尔蒙德·班德拉斯（Belmond Banderas）。",
+    "examples": [
+      "ベルモンド・バンデラスの配信",
+      "贝尔蒙德·班德拉斯さん"
+    ],
+    "notes": "中文圈固定译名「贝尔蒙德·班德拉斯」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "矢車りね",
+    "aliases": [
+      "矢车理音",
+      "Yaguruma Rine",
+      "矢車りね"
+    ],
+    "category": "nijisanji",
+    "translation": "矢车理音",
+    "meaning": "彩虹社所属VTuber 矢车理音（Yaguruma Rine）。",
+    "examples": [
+      "矢車りねの配信",
+      "矢车理音さん"
+    ],
+    "notes": "中文圈固定译名「矢车理音」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "夢追翔",
+    "aliases": [
+      "梦追翔",
+      "Yumeoi Kakeru",
+      "夢追翔"
+    ],
+    "category": "nijisanji",
+    "translation": "梦追翔",
+    "meaning": "彩虹社所属VTuber 梦追翔（Yumeoi Kakeru）。",
+    "examples": [
+      "夢追翔の配信",
+      "梦追翔さん"
+    ],
+    "notes": "中文圈固定译名「梦追翔」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "黒井しば",
+    "aliases": [
+      "黑井柴",
+      "Kuroi Shiba",
+      "黒井しば"
+    ],
+    "category": "nijisanji",
+    "translation": "黑井柴",
+    "meaning": "彩虹社所属VTuber 黑井柴（Kuroi Shiba）。",
+    "examples": [
+      "黒井しばの配信",
+      "黑井柴さん"
+    ],
+    "notes": "中文圈固定译名「黑井柴」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "黒羽黒兎",
+    "aliases": [
+      "黑羽黑兔",
+      "Kuroto Kurohane",
+      "黒羽黒兎"
+    ],
+    "category": "nijisanji",
+    "translation": "黑羽黑兔",
+    "meaning": "彩虹社所属VTuber 黑羽黑兔（Kuroto Kurohane）。",
+    "examples": [
+      "黒羽黒兎の配信",
+      "黑羽黑兔さん"
+    ],
+    "notes": "中文圈固定译名「黑羽黑兔」，指彩虹社（NIJISANJI）成员。（已退出）"
+  },
+  {
+    "term": "神成ポアロ",
+    "aliases": [
+      "神成Poirot",
+      "Kaminari Poaro",
+      "神成ポアロ"
+    ],
+    "category": "nijisanji",
+    "translation": "神成Poirot",
+    "meaning": "彩虹社所属VTuber 神成Poirot（Kaminari Poaro）。",
+    "examples": [
+      "神成ポアロの配信",
+      "神成Poirotさん"
+    ],
+    "notes": "中文圈固定译名「神成Poirot」，指彩虹社（NIJISANJI）成员。（已退出）"
+  },
+  {
+    "term": "童田明治",
+    "aliases": [
+      "童田明治",
+      "Warabeda Meiji"
+    ],
+    "category": "nijisanji",
+    "translation": "童田明治",
+    "meaning": "彩虹社所属VTuber 童田明治（Warabeda Meiji）。",
+    "examples": [
+      "童田明治の配信",
+      "童田明治さん"
+    ],
+    "notes": "中文圈固定译名「童田明治」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "久遠千歳",
+    "aliases": [
+      "久远千岁",
+      "Kudou Chitose",
+      "久遠千歳"
+    ],
+    "category": "nijisanji",
+    "translation": "久远千岁",
+    "meaning": "彩虹社所属VTuber 久远千岁（Kudou Chitose）。",
+    "examples": [
+      "久遠千歳の配信",
+      "久远千岁さん"
+    ],
+    "notes": "中文圈固定译名「久远千岁」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "郡道美玲",
+    "aliases": [
+      "郡道美玲",
+      "Gundo Mirei"
+    ],
+    "category": "nijisanji",
+    "translation": "郡道美玲",
+    "meaning": "彩虹社所属VTuber 郡道美玲（Gundo Mirei）。",
+    "examples": [
+      "郡道美玲の配信",
+      "郡道美玲さん"
+    ],
+    "notes": "中文圈固定译名「郡道美玲」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "夢月ロア",
+    "aliases": [
+      "梦月萝娅",
+      "Yuzuki Roa",
+      "夢月ロア"
+    ],
+    "category": "nijisanji",
+    "translation": "梦月萝娅",
+    "meaning": "彩虹社所属VTuber 梦月萝娅（Yuzuki Roa）。",
+    "examples": [
+      "夢月ロアの配信",
+      "梦月萝娅さん"
+    ],
+    "notes": "中文圈固定译名「梦月萝娅」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "小野町春香",
+    "aliases": [
+      "小野町春香",
+      "Onomachi Haruka"
+    ],
+    "category": "nijisanji",
+    "translation": "小野町春香",
+    "meaning": "彩虹社所属VTuber 小野町春香（Onomachi Haruka）。",
+    "examples": [
+      "小野町春香の配信",
+      "小野町春香さん"
+    ],
+    "notes": "中文圈固定译名「小野町春香」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "語部紡",
+    "aliases": [
+      "语部纺",
+      "Kataribe Tsumugu",
+      "語部紡"
+    ],
+    "category": "nijisanji",
+    "translation": "语部纺",
+    "meaning": "彩虹社所属VTuber 语部纺（Kataribe Tsumugu）。",
+    "examples": [
+      "語部紡の配信",
+      "语部纺さん"
+    ],
+    "notes": "中文圈固定译名「语部纺」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "瀬戸美夜子",
+    "aliases": [
+      "濑户美夜子",
+      "Seto Miyako",
+      "瀬戸美夜子"
+    ],
+    "category": "nijisanji",
+    "translation": "濑户美夜子",
+    "meaning": "彩虹社所属VTuber 濑户美夜子（Seto Miyako）。",
+    "examples": [
+      "瀬戸美夜子の配信",
+      "濑户美夜子さん"
+    ],
+    "notes": "中文圈固定译名「濑户美夜子」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "御伽原江良",
+    "aliases": [
+      "御伽原江良",
+      "Otogibara Era"
+    ],
+    "category": "nijisanji",
+    "translation": "御伽原江良",
+    "meaning": "彩虹社所属VTuber 御伽原江良（Otogibara Era）。",
+    "examples": [
+      "御伽原江良の配信",
+      "御伽原江良さん"
+    ],
+    "notes": "中文圈固定译名「御伽原江良」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "真堂雷斗",
+    "aliases": [
+      "真堂雷斗",
+      "Shindo Raito"
+    ],
+    "category": "nijisanji",
+    "translation": "真堂雷斗",
+    "meaning": "彩虹社所属VTuber 真堂雷斗（Shindo Raito）。",
+    "examples": [
+      "真堂雷斗の配信",
+      "真堂雷斗さん"
+    ],
+    "notes": "中文圈固定译名「真堂雷斗」，指彩虹社（NIJISANJI）成员。（已解约）"
+  },
+  {
+    "term": "戌亥とこ",
+    "aliases": [
+      "戌亥床",
+      "Inui Toko",
+      "戌亥とこ"
+    ],
+    "category": "nijisanji",
+    "translation": "戌亥床",
+    "meaning": "彩虹社所属VTuber 戌亥床（Inui Toko）。",
+    "examples": [
+      "戌亥とこの配信",
+      "戌亥床さん"
+    ],
+    "notes": "中文圈固定译名「戌亥床」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "アンジュ・カトリーナ",
+    "aliases": [
+      "安洁·卡特莉娜",
+      "Ange Katrina",
+      "アンジュ・カトリーナ"
+    ],
+    "category": "nijisanji",
+    "translation": "安洁·卡特莉娜",
+    "meaning": "彩虹社所属VTuber 安洁·卡特莉娜（Ange Katrina）。",
+    "examples": [
+      "アンジュ・カトリーナの配信",
+      "安洁·卡特莉娜さん"
+    ],
+    "notes": "中文圈固定译名「安洁·卡特莉娜」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "リゼ・ヘルエスタ",
+    "aliases": [
+      "莉泽·赫露艾斯塔",
+      "Lize Helesta",
+      "リゼ・ヘルエスタ"
+    ],
+    "category": "nijisanji",
+    "translation": "莉泽·赫露艾斯塔",
+    "meaning": "彩虹社所属VTuber 莉泽·赫露艾斯塔（Lize Helesta）。",
+    "examples": [
+      "リゼ・ヘルエスタの配信",
+      "莉泽·赫露艾斯塔さん"
+    ],
+    "notes": "中文圈固定译名「莉泽·赫露艾斯塔」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "三枝明那",
+    "aliases": [
+      "三枝明那",
+      "Saegusa Akina"
+    ],
+    "category": "nijisanji",
+    "translation": "三枝明那",
+    "meaning": "彩虹社所属VTuber 三枝明那（Saegusa Akina）。",
+    "examples": [
+      "三枝明那の配信",
+      "三枝明那さん"
+    ],
+    "notes": "中文圈固定译名「三枝明那」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "愛園愛美",
+    "aliases": [
+      "爱园爱美",
+      "Aizono Manami",
+      "愛園愛美"
+    ],
+    "category": "nijisanji",
+    "translation": "爱园爱美",
+    "meaning": "彩虹社所属VTuber 爱园爱美（Aizono Manami）。",
+    "examples": [
+      "愛園愛美の配信",
+      "爱园爱美さん"
+    ],
+    "notes": "中文圈固定译名「爱园爱美」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鈴原るる",
+    "aliases": [
+      "铃原露露",
+      "Suzuhara Lulu",
+      "鈴原るる"
+    ],
+    "category": "nijisanji",
+    "translation": "铃原露露",
+    "meaning": "彩虹社所属VTuber 铃原露露（Suzuhara Lulu）。",
+    "examples": [
+      "鈴原るるの配信",
+      "铃原露露さん"
+    ],
+    "notes": "中文圈固定译名「铃原露露」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "雪城眞尋",
+    "aliases": [
+      "雪城真寻",
+      "Yukishiro Mahiro",
+      "雪城眞尋"
+    ],
+    "category": "nijisanji",
+    "translation": "雪城真寻",
+    "meaning": "彩虹社所属VTuber 雪城真寻（Yukishiro Mahiro）。",
+    "examples": [
+      "雪城眞尋の配信",
+      "雪城真寻さん"
+    ],
+    "notes": "中文圈固定译名「雪城真寻」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "エクス・アルビオ",
+    "aliases": [
+      "艾克斯·阿尔比欧",
+      "Ex Albio",
+      "エクス・アルビオ"
+    ],
+    "category": "nijisanji",
+    "translation": "艾克斯·阿尔比欧",
+    "meaning": "彩虹社所属VTuber 艾克斯·阿尔比欧（Ex Albio）。",
+    "examples": [
+      "エクス・アルビオの配信",
+      "艾克斯·阿尔比欧さん"
+    ],
+    "notes": "中文圈固定译名「艾克斯·阿尔比欧」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "レヴィ・エリファ",
+    "aliases": [
+      "利维·艾莉法",
+      "Levi Elipha",
+      "レヴィ・エリファ"
+    ],
+    "category": "nijisanji",
+    "translation": "利维·艾莉法",
+    "meaning": "彩虹社所属VTuber 利维·艾莉法（Levi Elipha）。",
+    "examples": [
+      "レヴィ・エリファの配信",
+      "利维·艾莉法さん"
+    ],
+    "notes": "中文圈固定译名「利维·艾莉法」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "葉山舞鈴",
+    "aliases": [
+      "叶山舞铃",
+      "Hayama Marin",
+      "葉山舞鈴",
+      "葉山舞铃"
+    ],
+    "category": "nijisanji",
+    "translation": "叶山舞铃",
+    "meaning": "彩虹社所属VTuber 叶山舞铃（Hayama Marin）。",
+    "examples": [
+      "葉山舞鈴の配信",
+      "叶山舞铃さん"
+    ],
+    "notes": "中文圈固定译名「叶山舞铃」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ニュイ・ソシエール",
+    "aliases": [
+      "纽伊·索西艾瑞",
+      "Nui Sociere",
+      "ニュイ・ソシエール"
+    ],
+    "category": "nijisanji",
+    "translation": "纽伊·索西艾瑞",
+    "meaning": "彩虹社所属VTuber 纽伊·索西艾瑞（Nui Sociere）。",
+    "examples": [
+      "ニュイ・ソシエールの配信",
+      "纽伊·索西艾瑞さん"
+    ],
+    "notes": "中文圈固定译名「纽伊·索西艾瑞」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "加賀美ハヤト",
+    "aliases": [
+      "加贺美隼人",
+      "Kagami Hayato",
+      "加賀美ハヤト"
+    ],
+    "category": "nijisanji",
+    "translation": "加贺美隼人",
+    "meaning": "彩虹社所属VTuber 加贺美隼人（Kagami Hayato）。",
+    "examples": [
+      "加賀美ハヤトの配信",
+      "加贺美隼人さん"
+    ],
+    "notes": "中文圈固定译名「加贺美隼人」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "葉加瀬冬雪",
+    "aliases": [
+      "叶加濑冬雪",
+      "Hakase Fuyuki",
+      "葉加瀬冬雪",
+      "葉加濑冬雪"
+    ],
+    "category": "nijisanji",
+    "translation": "叶加濑冬雪",
+    "meaning": "彩虹社所属VTuber 叶加濑冬雪（Hakase Fuyuki）。",
+    "examples": [
+      "葉加瀬冬雪の配信",
+      "叶加濑冬雪さん"
+    ],
+    "notes": "中文圈固定译名「叶加濑冬雪」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "夜見れな",
+    "aliases": [
+      "夜见蕾娜",
+      "Yorumi Rena",
+      "夜見れな",
+      "夜見蕾娜"
+    ],
+    "category": "nijisanji",
+    "translation": "夜见蕾娜",
+    "meaning": "彩虹社所属VTuber 夜见蕾娜（Yorumi Rena）。",
+    "examples": [
+      "夜見れなの配信",
+      "夜见蕾娜さん"
+    ],
+    "notes": "中文圈固定译名「夜见蕾娜」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "アルス・アルマル",
+    "aliases": [
+      "阿露丝·阿尔玛",
+      "Ars Almal",
+      "アルス・アルマル"
+    ],
+    "category": "nijisanji",
+    "translation": "阿露丝·阿尔玛",
+    "meaning": "彩虹社所属VTuber 阿露丝·阿尔玛（Ars Almal）。",
+    "examples": [
+      "アルス・アルマルの配信",
+      "阿露丝·阿尔玛さん"
+    ],
+    "notes": "中文圈固定译名「阿露丝·阿尔玛」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "相羽ういは",
+    "aliases": [
+      "相羽初叶",
+      "Aiba Uiha",
+      "相羽ういは",
+      "相羽初葉"
+    ],
+    "category": "nijisanji",
+    "translation": "相羽初叶",
+    "meaning": "彩虹社所属VTuber 相羽初叶（Aiba Uiha）。",
+    "examples": [
+      "相羽ういはの配信",
+      "相羽初叶さん"
+    ],
+    "notes": "中文圈固定译名「相羽初叶」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "黛灰",
+    "aliases": [
+      "黛灰",
+      "Mayuzumi Kai"
+    ],
+    "category": "nijisanji",
+    "translation": "黛灰",
+    "meaning": "彩虹社所属VTuber 黛灰（Mayuzumi Kai）。",
+    "examples": [
+      "黛灰の配信",
+      "黛灰さん"
+    ],
+    "notes": "中文圈固定译名「黛灰」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "エリー・コニファー",
+    "aliases": [
+      "艾莉·柯妮法",
+      "Eli Conifer",
+      "エリー・コニファー"
+    ],
+    "category": "nijisanji",
+    "translation": "艾莉·柯妮法",
+    "meaning": "彩虹社所属VTuber 艾莉·柯妮法（Eli Conifer）。",
+    "examples": [
+      "エリー・コニファーの配信",
+      "艾莉·柯妮法さん"
+    ],
+    "notes": "中文圈固定译名「艾莉·柯妮法」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ラトナ・プティ",
+    "aliases": [
+      "拉特娜·葡蒂",
+      "Ratna Petit",
+      "ラトナ・プティ"
+    ],
+    "category": "nijisanji",
+    "translation": "拉特娜·葡蒂",
+    "meaning": "彩虹社所属VTuber 拉特娜·葡蒂（Ratna Petit）。",
+    "examples": [
+      "ラトナ・プティの配信",
+      "拉特娜·葡蒂さん"
+    ],
+    "notes": "中文圈固定译名「拉特娜·葡蒂」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "天宮こころ",
+    "aliases": [
+      "天宫心",
+      "Amamiya Kokoro",
+      "天宮こころ"
+    ],
+    "category": "nijisanji",
+    "translation": "天宫心",
+    "meaning": "彩虹社所属VTuber 天宫心（Amamiya Kokoro）。",
+    "examples": [
+      "天宮こころの配信",
+      "天宫心さん"
+    ],
+    "notes": "中文圈固定译名「天宫心」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "早瀬走",
+    "aliases": [
+      "早濑走",
+      "Hayase Sou",
+      "早瀬走"
+    ],
+    "category": "nijisanji",
+    "translation": "早濑走",
+    "meaning": "彩虹社所属VTuber 早濑走（Hayase Sou）。",
+    "examples": [
+      "早瀬走の配信",
+      "早濑走さん"
+    ],
+    "notes": "中文圈固定译名「早濑走」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "健屋花那",
+    "aliases": [
+      "健屋花那",
+      "Sukoya Kana"
+    ],
+    "category": "nijisanji",
+    "translation": "健屋花那",
+    "meaning": "彩虹社所属VTuber 健屋花那（Sukoya Kana）。",
+    "examples": [
+      "健屋花那の配信",
+      "健屋花那さん"
+    ],
+    "notes": "中文圈固定译名「健屋花那」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "シェリン・バーガンディ",
+    "aliases": [
+      "谢林·伯艮第",
+      "Shellin Burgundy",
+      "シェリン・バーガンディ"
+    ],
+    "category": "nijisanji",
+    "translation": "谢林·伯艮第",
+    "meaning": "彩虹社所属VTuber 谢林·伯艮第（Shellin Burgundy）。",
+    "examples": [
+      "シェリン・バーガンディの配信",
+      "谢林·伯艮第さん"
+    ],
+    "notes": "中文圈固定译名「谢林·伯艮第」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "フミ",
+    "aliases": [
+      "文美",
+      "Fumi",
+      "フミ"
+    ],
+    "category": "nijisanji",
+    "translation": "文美",
+    "meaning": "彩虹社所属VTuber 文美（Fumi）。",
+    "examples": [
+      "フミの配信",
+      "文美さん"
+    ],
+    "notes": "中文圈固定译名「文美」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "星川サラ",
+    "aliases": [
+      "星川莎拉",
+      "Hoshikawa Sara",
+      "星川サラ"
+    ],
+    "category": "nijisanji",
+    "translation": "星川莎拉",
+    "meaning": "彩虹社所属VTuber 星川莎拉（Hoshikawa Sara）。",
+    "examples": [
+      "星川サラの配信",
+      "星川莎拉さん"
+    ],
+    "notes": "中文圈固定译名「星川莎拉」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "山神カルタ",
+    "aliases": [
+      "山神歌流多",
+      "Yagami Karuta",
+      "山神カルタ"
+    ],
+    "category": "nijisanji",
+    "translation": "山神歌流多",
+    "meaning": "彩虹社所属VTuber 山神歌流多（Yagami Karuta）。",
+    "examples": [
+      "山神カルタの配信",
+      "山神歌流多さん"
+    ],
+    "notes": "中文圈固定译名「山神歌流多」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "えま★おうがすと",
+    "aliases": [
+      "艾玛★奥加斯特",
+      "Emma August",
+      "えま★おうがすと"
+    ],
+    "category": "nijisanji",
+    "translation": "艾玛★奥加斯特",
+    "meaning": "彩虹社所属VTuber 艾玛★奥加斯特（Emma August）。",
+    "examples": [
+      "えま★おうがすとの配信",
+      "艾玛★奥加斯特さん"
+    ],
+    "notes": "中文圈固定译名「艾玛★奥加斯特」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ルイス・キャミー",
+    "aliases": [
+      "路易斯·嘉米",
+      "Luis Cammy",
+      "ルイス・キャミー"
+    ],
+    "category": "nijisanji",
+    "translation": "路易斯·嘉米",
+    "meaning": "彩虹社所属VTuber 路易斯·嘉米（Luis Cammy）。",
+    "examples": [
+      "ルイス・キャミーの配信",
+      "路易斯·嘉米さん"
+    ],
+    "notes": "中文圈固定译名「路易斯·嘉米」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "魔使マオ",
+    "aliases": [
+      "魔使真央",
+      "Matsukai Mao",
+      "魔使マオ"
+    ],
+    "category": "nijisanji",
+    "translation": "魔使真央",
+    "meaning": "彩虹社所属VTuber 魔使真央（Matsukai Mao）。",
+    "examples": [
+      "魔使マオの配信",
+      "魔使真央さん"
+    ],
+    "notes": "中文圈固定译名「魔使真央」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "不破湊",
+    "aliases": [
+      "不破凑",
+      "Fuwa Minato",
+      "不破湊"
+    ],
+    "category": "nijisanji",
+    "translation": "不破凑",
+    "meaning": "彩虹社所属VTuber 不破凑（Fuwa Minato）。",
+    "examples": [
+      "不破湊の配信",
+      "不破凑さん"
+    ],
+    "notes": "中文圈固定译名「不破凑」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "白雪巴",
+    "aliases": [
+      "白雪巴",
+      "Shirayuki Tomoe"
+    ],
+    "category": "nijisanji",
+    "translation": "白雪巴",
+    "meaning": "彩虹社所属VTuber 白雪巴（Shirayuki Tomoe）。",
+    "examples": [
+      "白雪巴の配信",
+      "白雪巴さん"
+    ],
+    "notes": "中文圈固定译名「白雪巴」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "グウェル・オス・ガール",
+    "aliases": [
+      "圭利·奥什·迦尔",
+      "Gwelu Os Gar",
+      "グウェル・オス・ガール"
+    ],
+    "category": "nijisanji",
+    "translation": "圭利·奥什·迦尔",
+    "meaning": "彩虹社所属VTuber 圭利·奥什·迦尔（Gwelu Os Gar）。",
+    "examples": [
+      "グウェル・オス・ガールの配信",
+      "圭利·奥什·迦尔さん"
+    ],
+    "notes": "中文圈固定译名「圭利·奥什·迦尔」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "ましろ爻",
+    "aliases": [
+      "真白爻",
+      "Mashiro Meme",
+      "ましろ爻"
+    ],
+    "category": "nijisanji",
+    "translation": "真白爻",
+    "meaning": "彩虹社所属VTuber 真白爻（Mashiro Meme）。",
+    "examples": [
+      "ましろ爻の配信",
+      "真白爻さん"
+    ],
+    "notes": "中文圈固定译名「真白爻」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "奈羅花",
+    "aliases": [
+      "奈罗花",
+      "Naraka",
+      "奈羅花"
+    ],
+    "category": "nijisanji",
+    "translation": "奈罗花",
+    "meaning": "彩虹社所属VTuber 奈罗花（Naraka）。",
+    "examples": [
+      "奈羅花の配信",
+      "奈罗花さん"
+    ],
+    "notes": "中文圈固定译名「奈罗花」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "来栖夏芽",
+    "aliases": [
+      "来栖夏芽",
+      "Kurusu Natsume"
+    ],
+    "category": "nijisanji",
+    "translation": "来栖夏芽",
+    "meaning": "彩虹社所属VTuber 来栖夏芽（Kurusu Natsume）。",
+    "examples": [
+      "来栖夏芽の配信",
+      "来栖夏芽さん"
+    ],
+    "notes": "中文圈固定译名「来栖夏芽」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "フレン・E・ルスタリオ",
+    "aliases": [
+      "芙莲·E·露丝塔莉欧",
+      "Furen E Lustario",
+      "フレン・E・ルスタリオ"
+    ],
+    "category": "nijisanji",
+    "translation": "芙莲·E·露丝塔莉欧",
+    "meaning": "彩虹社所属VTuber 芙莲·E·露丝塔莉欧（Furen E Lustario）。",
+    "examples": [
+      "フレン・E・ルスタリオの配信",
+      "芙莲·E·露丝塔莉欧さん"
+    ],
+    "notes": "中文圈固定译名「芙莲·E·露丝塔莉欧」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "メリッサ・キンレンカ",
+    "aliases": [
+      "梅丽莎·金莲花",
+      "Melissa Kinrenka",
+      "メリッサ・キンレンカ"
+    ],
+    "category": "nijisanji",
+    "translation": "梅丽莎·金莲花",
+    "meaning": "彩虹社所属VTuber 梅丽莎·金莲花（Melissa Kinrenka）。",
+    "examples": [
+      "メリッサ・キンレンカの配信",
+      "梅丽莎·金莲花さん"
+    ],
+    "notes": "中文圈固定译名「梅丽莎·金莲花」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "イブラヒム",
+    "aliases": [
+      "伊卜拉新",
+      "Ibrahim",
+      "イブラヒム"
+    ],
+    "category": "nijisanji",
+    "translation": "伊卜拉新",
+    "meaning": "彩虹社所属VTuber 伊卜拉新（Ibrahim）。",
+    "examples": [
+      "イブラヒムの配信",
+      "伊卜拉新さん"
+    ],
+    "notes": "中文圈固定译名「伊卜拉新」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "長尾景",
+    "aliases": [
+      "长尾景",
+      "Nagao Kei",
+      "長尾景"
+    ],
+    "category": "nijisanji",
+    "translation": "长尾景",
+    "meaning": "彩虹社所属VTuber 长尾景（Nagao Kei）。",
+    "examples": [
+      "長尾景の配信",
+      "长尾景さん"
+    ],
+    "notes": "中文圈固定译名「长尾景」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "弦月藤士郎",
+    "aliases": [
+      "弦月藤士郎",
+      "Genzuki Tojiro"
+    ],
+    "category": "nijisanji",
+    "translation": "弦月藤士郎",
+    "meaning": "彩虹社所属VTuber 弦月藤士郎（Genzuki Tojiro）。",
+    "examples": [
+      "弦月藤士郎の配信",
+      "弦月藤士郎さん"
+    ],
+    "notes": "中文圈固定译名「弦月藤士郎」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "甲斐田晴",
+    "aliases": [
+      "甲斐田晴",
+      "Kaida Haru"
+    ],
+    "category": "nijisanji",
+    "translation": "甲斐田晴",
+    "meaning": "彩虹社所属VTuber 甲斐田晴（Kaida Haru）。",
+    "examples": [
+      "甲斐田晴の配信",
+      "甲斐田晴さん"
+    ],
+    "notes": "中文圈固定译名「甲斐田晴」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "金魚坂めいろ",
+    "aliases": [
+      "金鱼坂迷路",
+      "Kingyozaka Meiro",
+      "金魚坂めいろ"
+    ],
+    "category": "nijisanji",
+    "translation": "金鱼坂迷路",
+    "meaning": "彩虹社所属VTuber 金鱼坂迷路（Kingyozaka Meiro）。",
+    "examples": [
+      "金魚坂めいろの配信",
+      "金鱼坂迷路さん"
+    ],
+    "notes": "中文圈固定译名「金鱼坂迷路」，指彩虹社（NIJISANJI）成员。（已解约）"
+  },
+  {
+    "term": "空星きらめ",
+    "aliases": [
+      "空星煌",
+      "Sorahoshi Kirame",
+      "空星きらめ"
+    ],
+    "category": "nijisanji",
+    "translation": "空星煌",
+    "meaning": "彩虹社所属VTuber 空星煌（Sorahoshi Kirame）。",
+    "examples": [
+      "空星きらめの配信",
+      "空星煌さん"
+    ],
+    "notes": "中文圈固定译名「空星煌」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "西園チグサ",
+    "aliases": [
+      "西园千草",
+      "Nishizono Chigusa",
+      "西園チグサ"
+    ],
+    "category": "nijisanji",
+    "translation": "西园千草",
+    "meaning": "彩虹社所属VTuber 西园千草（Nishizono Chigusa）。",
+    "examples": [
+      "西園チグサの配信",
+      "西园千草さん"
+    ],
+    "notes": "中文圈固定译名「西园千草」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "朝日南アカネ",
+    "aliases": [
+      "朝日南茜",
+      "Asahina Akane",
+      "朝日南アカネ"
+    ],
+    "category": "nijisanji",
+    "translation": "朝日南茜",
+    "meaning": "彩虹社所属VTuber 朝日南茜（Asahina Akane）。",
+    "examples": [
+      "朝日南アカネの配信",
+      "朝日南茜さん"
+    ],
+    "notes": "中文圈固定译名「朝日南茜」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "周央サンゴ",
+    "aliases": [
+      "周央珊瑚",
+      "Suo Sango",
+      "周央サンゴ"
+    ],
+    "category": "nijisanji",
+    "translation": "周央珊瑚",
+    "meaning": "彩虹社所属VTuber 周央珊瑚（Suo Sango）。",
+    "examples": [
+      "周央サンゴの配信",
+      "周央珊瑚さん"
+    ],
+    "notes": "中文圈固定译名「周央珊瑚」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "東堂コハク",
+    "aliases": [
+      "东堂琥珀",
+      "Todo Kohaku",
+      "東堂コハク"
+    ],
+    "category": "nijisanji",
+    "translation": "东堂琥珀",
+    "meaning": "彩虹社所属VTuber 东堂琥珀（Todo Kohaku）。",
+    "examples": [
+      "東堂コハクの配信",
+      "东堂琥珀さん"
+    ],
+    "notes": "中文圈固定译名「东堂琥珀」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "北小路ヒスイ",
+    "aliases": [
+      "北小路翡翠",
+      "Kitakoji Hisui",
+      "北小路ヒスイ"
+    ],
+    "category": "nijisanji",
+    "translation": "北小路翡翠",
+    "meaning": "彩虹社所属VTuber 北小路翡翠（Kitakoji Hisui）。",
+    "examples": [
+      "北小路ヒスイの配信",
+      "北小路翡翠さん"
+    ],
+    "notes": "中文圈固定译名「北小路翡翠」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "アクシア・クローネ",
+    "aliases": [
+      "艾西亚·克朗",
+      "Axia Krone",
+      "アクシア・クローネ"
+    ],
+    "category": "nijisanji",
+    "translation": "艾西亚·克朗",
+    "meaning": "彩虹社所属VTuber 艾西亚·克朗（Axia Krone）。",
+    "examples": [
+      "アクシア・クローネの配信",
+      "艾西亚·克朗さん"
+    ],
+    "notes": "中文圈固定译名「艾西亚·克朗」，指彩虹社（NIJISANJI）成员。（已毕业）"
+  },
+  {
+    "term": "ローレン・イロアス",
+    "aliases": [
+      "劳伦·伊罗斯",
+      "Lauren Iroas",
+      "ローレン・イロアス"
+    ],
+    "category": "nijisanji",
+    "translation": "劳伦·伊罗斯",
+    "meaning": "彩虹社所属VTuber 劳伦·伊罗斯（Lauren Iroas）。",
+    "examples": [
+      "ローレン・イロアスの配信",
+      "劳伦·伊罗斯さん"
+    ],
+    "notes": "中文圈固定译名「劳伦·伊罗斯」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "レオス・ヴィンセント",
+    "aliases": [
+      "雷奥斯·文森特",
+      "Leos Vincent",
+      "レオス・ヴィンセント"
+    ],
+    "category": "nijisanji",
+    "translation": "雷奥斯·文森特",
+    "meaning": "彩虹社所属VTuber 雷奥斯·文森特（Leos Vincent）。",
+    "examples": [
+      "レオス・ヴィンセントの配信",
+      "雷奥斯·文森特さん"
+    ],
+    "notes": "中文圈固定译名「雷奥斯·文森特」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "オリバー・エバンス",
+    "aliases": [
+      "奥利弗·埃文斯",
+      "Oliver Evans",
+      "オリバー・エバンス"
+    ],
+    "category": "nijisanji",
+    "translation": "奥利弗·埃文斯",
+    "meaning": "彩虹社所属VTuber 奥利弗·埃文斯（Oliver Evans）。",
+    "examples": [
+      "オリバー・エバンスの配信",
+      "奥利弗·埃文斯さん"
+    ],
+    "notes": "中文圈固定译名「奥利弗·埃文斯」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "レイン・パターソン",
+    "aliases": [
+      "兰·帕特森",
+      "Lain Paterson",
+      "レイン・パターソン"
+    ],
+    "category": "nijisanji",
+    "translation": "兰·帕特森",
+    "meaning": "彩虹社所属VTuber 兰·帕特森（Lain Paterson）。",
+    "examples": [
+      "レイン・パターソンの配信",
+      "兰·帕特森さん"
+    ],
+    "notes": "中文圈固定译名「兰·帕特森」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "海妹四葉",
+    "aliases": [
+      "海妹四叶",
+      "Umise Yotsuha",
+      "海妹四葉"
+    ],
+    "category": "nijisanji",
+    "translation": "海妹四叶",
+    "meaning": "彩虹社所属VTuber 海妹四叶（Umise Yotsuha）。",
+    "examples": [
+      "海妹四葉の配信",
+      "海妹四叶さん"
+    ],
+    "notes": "中文圈固定译名「海妹四叶」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "天ヶ瀬むゆ",
+    "aliases": [
+      "天瀬梦愈",
+      "Amagase Muyu",
+      "天ヶ瀬むゆ"
+    ],
+    "category": "nijisanji",
+    "translation": "天瀬梦愈",
+    "meaning": "彩虹社所属VTuber 天瀬梦愈（Amagase Muyu）。",
+    "examples": [
+      "天ヶ瀬むゆの配信",
+      "天瀬梦愈さん"
+    ],
+    "notes": "中文圈固定译名「天瀬梦愈」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "先斗寧",
+    "aliases": [
+      "先斗宁",
+      "Ponto Nei",
+      "先斗寧"
+    ],
+    "category": "nijisanji",
+    "translation": "先斗宁",
+    "meaning": "彩虹社所属VTuber 先斗宁（Ponto Nei）。",
+    "examples": [
+      "先斗寧の配信",
+      "先斗宁さん"
+    ],
+    "notes": "中文圈固定译名「先斗宁」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "壱百満天原サロメ",
+    "aliases": [
+      "壹百满天原莎乐美",
+      "Hyakumantenbara Salome",
+      "壱百満天原サロメ",
+      "壹百满天原莎樂美"
+    ],
+    "category": "nijisanji",
+    "translation": "壹百满天原莎乐美",
+    "meaning": "彩虹社所属VTuber 壹百满天原莎乐美（Hyakumantenbara Salome）。",
+    "examples": [
+      "壱百満天原サロメの配信",
+      "壹百满天原莎乐美さん"
+    ],
+    "notes": "中文圈固定译名「壹百满天原莎乐美」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "風楽奏斗",
+    "aliases": [
+      "风乐奏斗",
+      "Fura Kanato",
+      "風楽奏斗",
+      "风樂奏斗"
+    ],
+    "category": "nijisanji",
+    "translation": "风乐奏斗",
+    "meaning": "彩虹社所属VTuber 风乐奏斗（Fura Kanato）。",
+    "examples": [
+      "風楽奏斗の配信",
+      "风乐奏斗さん"
+    ],
+    "notes": "中文圈固定译名「风乐奏斗」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "渡会雲雀",
+    "aliases": [
+      "渡会云雀",
+      "Watarai Hibari",
+      "渡会雲雀"
+    ],
+    "category": "nijisanji",
+    "translation": "渡会云雀",
+    "meaning": "彩虹社所属VTuber 渡会云雀（Watarai Hibari）。",
+    "examples": [
+      "渡会雲雀の配信",
+      "渡会云雀さん"
+    ],
+    "notes": "中文圈固定译名「渡会云雀」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "四季凪アキラ",
+    "aliases": [
+      "四季凪圣来",
+      "Shikinagi Akira",
+      "四季凪アキラ"
+    ],
+    "category": "nijisanji",
+    "translation": "四季凪圣来",
+    "meaning": "彩虹社所属VTuber 四季凪圣来（Shikinagi Akira）。",
+    "examples": [
+      "四季凪アキラの配信",
+      "四季凪圣来さん"
+    ],
+    "notes": "中文圈固定译名「四季凪圣来」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "セラフ・ダズルガーデン",
+    "aliases": [
+      "塞拉弗·迪滋加登",
+      "Seraph Dazzlegarden",
+      "セラフ・ダズルガーデン"
+    ],
+    "category": "nijisanji",
+    "translation": "塞拉弗·迪滋加登",
+    "meaning": "彩虹社所属VTuber 塞拉弗·迪滋加登（Seraph Dazzlegarden）。",
+    "examples": [
+      "セラフ・ダズルガーデンの配信",
+      "塞拉弗·迪滋加登さん"
+    ],
+    "notes": "中文圈固定译名「塞拉弗·迪滋加登」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "小清水透",
+    "aliases": [
+      "小清水透",
+      "Koshimizu Toru"
+    ],
+    "category": "nijisanji",
+    "translation": "小清水透",
+    "meaning": "彩虹社所属VTuber 小清水透（Koshimizu Toru）。",
+    "examples": [
+      "小清水透の配信",
+      "小清水透さん"
+    ],
+    "notes": "中文圈固定译名「小清水透」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "獅子堂あかり",
+    "aliases": [
+      "狮子堂灯",
+      "Shishido Akari",
+      "獅子堂あかり"
+    ],
+    "category": "nijisanji",
+    "translation": "狮子堂灯",
+    "meaning": "彩虹社所属VTuber 狮子堂灯（Shishido Akari）。",
+    "examples": [
+      "獅子堂あかりの配信",
+      "狮子堂灯さん"
+    ],
+    "notes": "中文圈固定译名「狮子堂灯」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "鏑木ろこ",
+    "aliases": [
+      "镝木露恋",
+      "Kaburaki Roco",
+      "鏑木ろこ"
+    ],
+    "category": "nijisanji",
+    "translation": "镝木露恋",
+    "meaning": "彩虹社所属VTuber 镝木露恋（Kaburaki Roco）。",
+    "examples": [
+      "鏑木ろこの配信",
+      "镝木露恋さん"
+    ],
+    "notes": "中文圈固定译名「镝木露恋」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "五十嵐梨花",
+    "aliases": [
+      "五十岚梨花",
+      "Igarashi Rika",
+      "五十嵐梨花"
+    ],
+    "category": "nijisanji",
+    "translation": "五十岚梨花",
+    "meaning": "彩虹社所属VTuber 五十岚梨花（Igarashi Rika）。",
+    "examples": [
+      "五十嵐梨花の配信",
+      "五十岚梨花さん"
+    ],
+    "notes": "中文圈固定译名「五十岚梨花」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "石神のぞみ",
+    "aliases": [
+      "石神望",
+      "Ishigami Nozomi",
+      "石神のぞみ"
+    ],
+    "category": "nijisanji",
+    "translation": "石神望",
+    "meaning": "彩虹社所属VTuber 石神望（Ishigami Nozomi）。",
+    "examples": [
+      "石神のぞみの配信",
+      "石神望さん"
+    ],
+    "notes": "中文圈固定译名「石神望」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ソフィア・ヴァレンタイン",
+    "aliases": [
+      "苏菲娅·瓦纶玎",
+      "Sophia Valentine",
+      "ソフィア・ヴァレンタイン"
+    ],
+    "category": "nijisanji",
+    "translation": "苏菲娅·瓦纶玎",
+    "meaning": "彩虹社所属VTuber 苏菲娅·瓦纶玎（Sophia Valentine）。",
+    "examples": [
+      "ソフィア・ヴァレンタインの配信",
+      "苏菲娅·瓦纶玎さん"
+    ],
+    "notes": "中文圈固定译名「苏菲娅·瓦纶玎」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "倉持めると",
+    "aliases": [
+      "仓持妹路特",
+      "Kuramochi Meruto",
+      "倉持めると"
+    ],
+    "category": "nijisanji",
+    "translation": "仓持妹路特",
+    "meaning": "彩虹社所属VTuber 仓持妹路特（Kuramochi Meruto）。",
+    "examples": [
+      "倉持めるとの配信",
+      "仓持妹路特さん"
+    ],
+    "notes": "中文圈固定译名「仓持妹路特」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "赤城ウェン",
+    "aliases": [
+      "赤城文",
+      "Akagi Wen",
+      "赤城ウェン"
+    ],
+    "category": "nijisanji",
+    "translation": "赤城文",
+    "meaning": "彩虹社所属VTuber 赤城文（Akagi Wen）。",
+    "examples": [
+      "赤城ウェンの配信",
+      "赤城文さん"
+    ],
+    "notes": "中文圈固定译名「赤城文」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "宇佐美リト",
+    "aliases": [
+      "宇佐美理人",
+      "Usami Rito",
+      "宇佐美リト"
+    ],
+    "category": "nijisanji",
+    "translation": "宇佐美理人",
+    "meaning": "彩虹社所属VTuber 宇佐美理人（Usami Rito）。",
+    "examples": [
+      "宇佐美リトの配信",
+      "宇佐美理人さん"
+    ],
+    "notes": "中文圈固定译名「宇佐美理人」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "佐伯イッテツ",
+    "aliases": [
+      "佐伯一彻",
+      "Saiki Ittetsu",
+      "佐伯イッテツ"
+    ],
+    "category": "nijisanji",
+    "translation": "佐伯一彻",
+    "meaning": "彩虹社所属VTuber 佐伯一彻（Saiki Ittetsu）。",
+    "examples": [
+      "佐伯イッテツの配信",
+      "佐伯一彻さん"
+    ],
+    "notes": "中文圈固定译名「佐伯一彻」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "緋八マナ",
+    "aliases": [
+      "绯八舞成",
+      "Hibachi Mana",
+      "緋八マナ"
+    ],
+    "category": "nijisanji",
+    "translation": "绯八舞成",
+    "meaning": "彩虹社所属VTuber 绯八舞成（Hibachi Mana）。",
+    "examples": [
+      "緋八マナの配信",
+      "绯八舞成さん"
+    ],
+    "notes": "中文圈固定译名「绯八舞成」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "星導ショウ",
+    "aliases": [
+      "星导霄",
+      "Hoshirube Sho",
+      "星導ショウ"
+    ],
+    "category": "nijisanji",
+    "translation": "星导霄",
+    "meaning": "彩虹社所属VTuber 星导霄（Hoshirube Sho）。",
+    "examples": [
+      "星導ショウの配信",
+      "星导霄さん"
+    ],
+    "notes": "中文圈固定译名「星导霄」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "叢雲カゲツ",
+    "aliases": [
+      "丛云花月",
+      "Murakumo Kagetsu",
+      "叢雲カゲツ"
+    ],
+    "category": "nijisanji",
+    "translation": "丛云花月",
+    "meaning": "彩虹社所属VTuber 丛云花月（Murakumo Kagetsu）。",
+    "examples": [
+      "叢雲カゲツの配信",
+      "丛云花月さん"
+    ],
+    "notes": "中文圈固定译名「丛云花月」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "小柳ロウ",
+    "aliases": [
+      "小柳狼",
+      "Koyanagi Rou",
+      "小柳ロウ"
+    ],
+    "category": "nijisanji",
+    "translation": "小柳狼",
+    "meaning": "彩虹社所属VTuber 小柳狼（Koyanagi Rou）。",
+    "examples": [
+      "小柳ロウの配信",
+      "小柳狼さん"
+    ],
+    "notes": "中文圈固定译名「小柳狼」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "伊波ライ",
+    "aliases": [
+      "伊波雷",
+      "Inami Rai",
+      "伊波ライ"
+    ],
+    "category": "nijisanji",
+    "translation": "伊波雷",
+    "meaning": "彩虹社所属VTuber 伊波雷（Inami Rai）。",
+    "examples": [
+      "伊波ライの配信",
+      "伊波雷さん"
+    ],
+    "notes": "中文圈固定译名「伊波雷」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "立伝都々",
+    "aliases": [
+      "立传都都",
+      "Tachitsute Toto",
+      "立伝都々"
+    ],
+    "category": "nijisanji",
+    "translation": "立传都都",
+    "meaning": "彩虹社所属VTuber 立传都都（Tachitsute Toto）。",
+    "examples": [
+      "立伝都々の配信",
+      "立传都都さん"
+    ],
+    "notes": "中文圈固定译名「立传都都」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "栞葉るり",
+    "aliases": [
+      "栞叶琉璃",
+      "Shioriha Ruri",
+      "栞葉るり",
+      "栞葉琉璃"
+    ],
+    "category": "nijisanji",
+    "translation": "栞叶琉璃",
+    "meaning": "彩虹社所属VTuber 栞叶琉璃（Shioriha Ruri）。",
+    "examples": [
+      "栞葉るりの配信",
+      "栞叶琉璃さん"
+    ],
+    "notes": "中文圈固定译名「栞叶琉璃」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ミラン・ケストレル",
+    "aliases": [
+      "米兰·凯斯特雷尔",
+      "Milan Kestrel",
+      "ミラン・ケストレル"
+    ],
+    "category": "nijisanji",
+    "translation": "米兰·凯斯特雷尔",
+    "meaning": "彩虹社所属VTuber 米兰·凯斯特雷尔（Milan Kestrel）。",
+    "examples": [
+      "ミラン・ケストレルの配信",
+      "米兰·凯斯特雷尔さん"
+    ],
+    "notes": "中文圈固定译名「米兰·凯斯特雷尔」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "北見遊征",
+    "aliases": [
+      "北见游征",
+      "Kitami Yusei",
+      "北見遊征",
+      "北見游征"
+    ],
+    "category": "nijisanji",
+    "translation": "北见游征",
+    "meaning": "彩虹社所属VTuber 北见游征（Kitami Yusei）。",
+    "examples": [
+      "北見遊征の配信",
+      "北见游征さん"
+    ],
+    "notes": "中文圈固定译名「北见游征」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "魁星",
+    "aliases": [
+      "魁星",
+      "Kaisei"
+    ],
+    "category": "nijisanji",
+    "translation": "魁星",
+    "meaning": "彩虹社所属VTuber 魁星（Kaisei）。",
+    "examples": [
+      "魁星の配信",
+      "魁星さん"
+    ],
+    "notes": "中文圈固定译名「魁星」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "榊ネス",
+    "aliases": [
+      "榊奈司",
+      "Sakaki Ness",
+      "榊ネス"
+    ],
+    "category": "nijisanji",
+    "translation": "榊奈司",
+    "meaning": "彩虹社所属VTuber 榊奈司（Sakaki Ness）。",
+    "examples": [
+      "榊ネスの配信",
+      "榊奈司さん"
+    ],
+    "notes": "中文圈固定译名「榊奈司」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "綺沙良",
+    "aliases": [
+      "绮沙良",
+      "Kisara",
+      "綺沙良"
+    ],
+    "category": "nijisanji",
+    "translation": "绮沙良",
+    "meaning": "彩虹社所属VTuber 绮沙良（Kisara）。",
+    "examples": [
+      "綺沙良の配信",
+      "绮沙良さん"
+    ],
+    "notes": "中文圈固定译名「绮沙良」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "梢桃音",
+    "aliases": [
+      "梢桃音",
+      "Kozue Mone"
+    ],
+    "category": "nijisanji",
+    "translation": "梢桃音",
+    "meaning": "彩虹社所属VTuber 梢桃音（Kozue Mone）。",
+    "examples": [
+      "梢桃音の配信",
+      "梢桃音さん"
+    ],
+    "notes": "中文圈固定译名「梢桃音」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "ルンルン",
+    "aliases": [
+      "仑仑",
+      "Lunlun",
+      "ルンルン"
+    ],
+    "category": "nijisanji",
+    "translation": "仑仑",
+    "meaning": "彩虹社所属VTuber 仑仑（Lunlun）。",
+    "examples": [
+      "ルンルンの配信",
+      "仑仑さん"
+    ],
+    "notes": "中文圈固定译名「仑仑」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "司賀りこ",
+    "aliases": [
+      "司贺莉子",
+      "Shiga Riko",
+      "司賀りこ"
+    ],
+    "category": "nijisanji",
+    "translation": "司贺莉子",
+    "meaning": "彩虹社所属VTuber 司贺莉子（Shiga Riko）。",
+    "examples": [
+      "司賀りこの配信",
+      "司贺莉子さん"
+    ],
+    "notes": "中文圈固定译名「司贺莉子」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "珠乃井ナナ",
+    "aliases": [
+      "珠乃井南奈",
+      "Tamanoi Nana",
+      "珠乃井ナナ"
+    ],
+    "category": "nijisanji",
+    "translation": "珠乃井南奈",
+    "meaning": "彩虹社所属VTuber 珠乃井南奈（Tamanoi Nana）。",
+    "examples": [
+      "珠乃井ナナの配信",
+      "珠乃井南奈さん"
+    ],
+    "notes": "中文圈固定译名「珠乃井南奈」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "雲母たまこ",
+    "aliases": [
+      "云母玉子",
+      "Kirara Tamako",
+      "雲母たまこ"
+    ],
+    "category": "nijisanji",
+    "translation": "云母玉子",
+    "meaning": "彩虹社所属VTuber 云母玉子（Kirara Tamako）。",
+    "examples": [
+      "雲母たまこの配信",
+      "云母玉子さん"
+    ],
+    "notes": "中文圈固定译名「云母玉子」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "渚トラウト",
+    "aliases": [
+      "渚托劳特",
+      "Nagisa Trout",
+      "渚トラウト"
+    ],
+    "category": "nijisanji",
+    "translation": "渚托劳特",
+    "meaning": "彩虹社所属VTuber 渚托劳特（Nagisa Trout）。",
+    "examples": [
+      "渚トラウトの配信",
+      "渚托劳特さん"
+    ],
+    "notes": "中文圈固定译名「渚托劳特」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "七瀬すず菜",
+    "aliases": [
+      "七濑铃菜",
+      "Nanase Suzuna",
+      "七瀬すず菜"
+    ],
+    "category": "nijisanji",
+    "translation": "七濑铃菜",
+    "meaning": "彩虹社所属VTuber 七濑铃菜（Nanase Suzuna）。",
+    "examples": [
+      "七瀬すず菜の配信",
+      "七濑铃菜さん"
+    ],
+    "notes": "中文圈固定译名「七濑铃菜」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "酒寄颯馬",
+    "aliases": [
+      "酒寄飒马",
+      "Sakayori Soma",
+      "酒寄颯馬"
+    ],
+    "category": "nijisanji",
+    "translation": "酒寄飒马",
+    "meaning": "彩虹社所属VTuber 酒寄飒马（Sakayori Soma）。",
+    "examples": [
+      "酒寄颯馬の配信",
+      "酒寄飒马さん"
+    ],
+    "notes": "中文圈固定译名「酒寄飒马」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "早乙女ベリー",
+    "aliases": [
+      "早乙女蓓丽",
+      "Saotome Berry",
+      "早乙女ベリー"
+    ],
+    "category": "nijisanji",
+    "translation": "早乙女蓓丽",
+    "meaning": "彩虹社所属VTuber 早乙女蓓丽（Saotome Berry）。",
+    "examples": [
+      "早乙女ベリーの配信",
+      "早乙女蓓丽さん"
+    ],
+    "notes": "中文圈固定译名「早乙女蓓丽」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "五木左京",
+    "aliases": [
+      "五木左京",
+      "Itsuki Sakyo"
+    ],
+    "category": "nijisanji",
+    "translation": "五木左京",
+    "meaning": "彩虹社所属VTuber 五木左京（Itsuki Sakyo）。",
+    "examples": [
+      "五木左京の配信",
+      "五木左京さん"
+    ],
+    "notes": "中文圈固定译名「五木左京」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "一橋綾人",
+    "aliases": [
+      "一桥绫人",
+      "Hitotsubashi Ayato",
+      "一橋綾人"
+    ],
+    "category": "nijisanji",
+    "translation": "一桥绫人",
+    "meaning": "彩虹社所属VTuber 一桥绫人（Hitotsubashi Ayato）。",
+    "examples": [
+      "一橋綾人の配信",
+      "一桥绫人さん"
+    ],
+    "notes": "中文圈固定译名「一桥绫人」，指彩虹社（NIJISANJI）成员。"
+  }
+]

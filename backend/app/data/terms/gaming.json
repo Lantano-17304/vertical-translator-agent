@@ -1,0 +1,575 @@
+[
+  {
+    "term": "デバフ",
+    "aliases": [
+      "Debuff",
+      "弱体効果"
+    ],
+    "category": "battle",
+    "translation": "减益 / 负面状态",
+    "meaning": "游戏中的负面状态，例如中毒、减速、流血、防御下降、攻击下降等。",
+    "examples": [
+      "このキャラのデバフが強すぎる。"
+    ],
+    "notes": "不要翻译成普通的“缺点”；它通常是战斗机制。"
+  },
+  {
+    "term": "バフ",
+    "aliases": [
+      "Buff",
+      "強化効果"
+    ],
+    "category": "battle",
+    "translation": "增益 / 强化状态",
+    "meaning": "游戏中的正面强化效果，例如攻击力提升、防御力提升、暴击率提升。",
+    "examples": [
+      "開幕で攻撃バフを盛ってから殴ろう。"
+    ],
+    "notes": "“盛る”在这里常指叠加、堆高增益。"
+  },
+  {
+    "term": "ワンパン",
+    "aliases": [
+      "one-punch",
+      "ワンパンチ"
+    ],
+    "category": "battle",
+    "translation": "一击秒杀 / 一击带走",
+    "meaning": "一次攻击就击败敌人。",
+    "examples": [
+      "この装備なら雑魚敵はワンパンできる。"
+    ],
+    "notes": "可根据语气译成“直接秒了”。"
+  },
+  {
+    "term": "ガチャ",
+    "aliases": [
+      "gacha"
+    ],
+    "category": "gacha",
+    "translation": "抽卡 / 卡池",
+    "meaning": "通过随机抽取获得角色、武器或道具的机制。",
+    "examples": [
+      "このガチャ、排出率が渋すぎる。"
+    ],
+    "notes": "不要直译为“扭蛋”除非语境确实是实体扭蛋。"
+  },
+  {
+    "term": "天井",
+    "aliases": [
+      "天井システム",
+      "pity"
+    ],
+    "category": "gacha",
+    "translation": "保底",
+    "meaning": "抽卡达到一定次数后必定获得目标角色或高稀有奖励的机制。",
+    "examples": [
+      "あと10連で天井だから引き切る。"
+    ],
+    "notes": "在中文游戏圈通常译为“保底”。"
+  },
+  {
+    "term": "すり抜け",
+    "aliases": [
+      "歪み",
+      "off-rate"
+    ],
+    "category": "gacha",
+    "translation": "歪卡 / 歪了",
+    "meaning": "抽到高稀有但不是当前目标或 UP 角色。",
+    "examples": [
+      "またすり抜けで別キャラが出た。"
+    ],
+    "notes": "不要译为“穿过”；抽卡语境中是“歪”。"
+  },
+  {
+    "term": "神引き",
+    "aliases": [
+      "god pull"
+    ],
+    "category": "gacha",
+    "translation": "欧皇抽卡 / 神抽",
+    "meaning": "抽卡结果极其幸运，少量抽数获得多个稀有奖励。",
+    "examples": [
+      "10連で限定2枚は神引きすぎる。"
+    ],
+    "notes": "语气可译得口语化。"
+  },
+  {
+    "term": "爆死",
+    "aliases": [
+      "爆死ガチャ"
+    ],
+    "category": "gacha",
+    "translation": "抽卡暴死 / 沉船",
+    "meaning": "投入大量资源却没抽到想要的目标。",
+    "examples": [
+      "石を全部使ったのに爆死した。"
+    ],
+    "notes": "中文游戏圈常说“暴死、沉船”。"
+  },
+  {
+    "term": "排出率",
+    "aliases": [
+      "提供割合"
+    ],
+    "category": "gacha",
+    "translation": "出货率 / 掉率 / 概率",
+    "meaning": "抽卡或掉落中某类奖励出现的概率。",
+    "examples": [
+      "限定キャラの排出率は1%しかない。"
+    ],
+    "notes": "抽卡语境优先译为“出货率”。"
+  },
+  {
+    "term": "凸",
+    "aliases": [
+      "限界突破",
+      "凸る",
+      "1凸",
+      "完凸"
+    ],
+    "category": "progression",
+    "translation": "突破 / 命座 / 星级提升",
+    "meaning": "通过重复获得角色或素材提高角色上限、技能或稀有度。",
+    "examples": [
+      "このキャラは2凸から強い。"
+    ],
+    "notes": "不同游戏译法不同：原神类可译“命座”，泛用可译“突破”。"
+  },
+  {
+    "term": "完凸",
+    "aliases": [
+      "最大凸",
+      "满凸"
+    ],
+    "category": "progression",
+    "translation": "满破 / 满凸 / 满命",
+    "meaning": "角色或装备的突破层数达到上限。",
+    "examples": [
+      "完凸すると性能が別物になる。"
+    ],
+    "notes": "按游戏语境选择“满破、满凸、满命”。"
+  },
+  {
+    "term": "育成",
+    "aliases": [
+      "育てる",
+      "育成素材"
+    ],
+    "category": "progression",
+    "translation": "养成 / 培养",
+    "meaning": "提升角色、武器或装备等级、技能、属性的过程。",
+    "examples": [
+      "新キャラの育成素材が足りない。"
+    ],
+    "notes": "手游语境通常译为“养成”。"
+  },
+  {
+    "term": "周回",
+    "aliases": [
+      "周回する",
+      "周回効率"
+    ],
+    "category": "progression",
+    "translation": "刷本 / 反复刷关 / 周回",
+    "meaning": "反复挑战同一关卡以获取材料、经验或掉落。",
+    "examples": [
+      "素材集めはこのステージを周回するのが効率いい。"
+    ],
+    "notes": "中文玩家更常说“刷本、刷关”。"
+  },
+  {
+    "term": "素材",
+    "aliases": [
+      "素材集め",
+      "育成素材"
+    ],
+    "category": "progression",
+    "translation": "材料 / 素材",
+    "meaning": "用于养成、突破、强化、制作的资源。",
+    "examples": [
+      "武器強化の素材が足りない。"
+    ],
+    "notes": "游戏语境可保留“素材”，但“材料”更自然。"
+  },
+  {
+    "term": "ドロップ",
+    "aliases": [
+      "drop",
+      "泥"
+    ],
+    "category": "progression",
+    "translation": "掉落",
+    "meaning": "通关、击败敌人或开箱后获得的奖励。",
+    "examples": [
+      "この素材はボスから低確率でドロップする。"
+    ],
+    "notes": "不要译为普通“下降”。"
+  },
+  {
+    "term": "リセマラ",
+    "aliases": [
+      "リセットマラソン"
+    ],
+    "category": "gacha",
+    "translation": "刷初始",
+    "meaning": "反复重置账号开局抽卡，直到获得理想初始角色。",
+    "examples": [
+      "リセマラで限定キャラを狙う。"
+    ],
+    "notes": "中文手游圈固定说法是“刷初始”。"
+  },
+  {
+    "term": "ナーフ",
+    "aliases": [
+      "nerf",
+      "弱体化"
+    ],
+    "category": "balance",
+    "translation": "削弱",
+    "meaning": "官方通过更新降低角色、武器、技能或机制强度。",
+    "examples": [
+      "次のアプデでこの武器がナーフされるらしい。"
+    ],
+    "notes": "和“上方修正/加强”相对。"
+  },
+  {
+    "term": "上方修正",
+    "aliases": [
+      "バフ調整",
+      "強化"
+    ],
+    "category": "balance",
+    "translation": "加强 / 上调",
+    "meaning": "官方通过更新提升角色、武器或技能强度。",
+    "examples": [
+      "不人気キャラに上方修正が入った。"
+    ],
+    "notes": "不要机械译为“向上修正”。"
+  },
+  {
+    "term": "アプデ",
+    "aliases": [
+      "アップデート",
+      "update"
+    ],
+    "category": "system",
+    "translation": "更新 / 版本更新",
+    "meaning": "游戏客户端或内容版本更新。",
+    "examples": [
+      "次のアプデで新イベントが来る。"
+    ],
+    "notes": "口语里可译为“更新”。"
+  },
+  {
+    "term": "環境",
+    "aliases": [
+      "メタ",
+      "meta"
+    ],
+    "category": "meta",
+    "translation": "版本环境 / 当前环境",
+    "meaning": "当前版本中主流强势角色、阵容、打法构成的整体生态。",
+    "examples": [
+      "今の環境だとこの編成が強い。"
+    ],
+    "notes": "不要译成自然环境，应译为“版本环境”。"
+  },
+  {
+    "term": "Tier",
+    "aliases": [
+      "Tier1",
+      "ティア",
+      "tier list"
+    ],
+    "category": "meta",
+    "translation": "梯队 / 强度档位",
+    "meaning": "角色、装备或阵容强度评级；Tier1 通常指第一梯队。",
+    "examples": [
+      "このキャラはTier1に入ると思う。"
+    ],
+    "notes": "中文常直接说“T0/T1”或“第一梯队”。"
+  },
+  {
+    "term": "人権キャラ",
+    "aliases": [
+      "必須キャラ",
+      "must pull"
+    ],
+    "category": "meta",
+    "translation": "人权角色 / 必抽角色",
+    "meaning": "强度、功能性或泛用性极高，常被认为必须拥有的角色。",
+    "examples": [
+      "このサポーターは人権キャラと言われている。"
+    ],
+    "notes": "“人权”是中文游戏圈固定表达。"
+  },
+  {
+    "term": "壊れキャラ",
+    "aliases": [
+      "ぶっ壊れ",
+      "壊れ性能"
+    ],
+    "category": "meta",
+    "translation": "超模角色 / 强度爆炸的角色",
+    "meaning": "性能明显超过常规平衡范围的角色。",
+    "examples": [
+      "新キャラがぶっ壊れ性能すぎる。"
+    ],
+    "notes": "不要字面译为“坏掉的角色”。"
+  },
+  {
+    "term": "編成",
+    "aliases": [
+      "パーティ",
+      "構成"
+    ],
+    "category": "battle",
+    "translation": "阵容 / 配队",
+    "meaning": "玩家选择并组合角色、装备、技能形成的队伍配置。",
+    "examples": [
+      "この編成は初心者にも組みやすい。"
+    ],
+    "notes": "手游/二游语境常译为“配队”。"
+  },
+  {
+    "term": "立ち回り",
+    "aliases": [
+      "立回り",
+      "立ち回る"
+    ],
+    "category": "battle",
+    "translation": "操作思路 / 走位打法 / 应对方式",
+    "meaning": "战斗中的行动策略，包括走位、技能释放、规避攻击等。",
+    "examples": [
+      "このボスは立ち回りを覚えれば簡単。"
+    ],
+    "notes": "根据游戏类型译为“走位、打法、操作思路”。"
+  },
+  {
+    "term": "CT",
+    "aliases": [
+      "クールタイム",
+      "cooldown",
+      "CD"
+    ],
+    "category": "battle",
+    "translation": "冷却时间 / CD",
+    "meaning": "技能使用后到再次可用之间的等待时间。",
+    "examples": [
+      "スキルのCTが長いからタイミングが大事。"
+    ],
+    "notes": "中文玩家常说“CD”。"
+  },
+  {
+    "term": "DPS",
+    "aliases": [
+      "damage per second",
+      "火力役"
+    ],
+    "category": "battle",
+    "translation": "输出 / 秒伤 / 输出位",
+    "meaning": "可指每秒伤害，也可指负责造成伤害的角色定位。",
+    "examples": [
+      "このキャラはDPSとしてかなり優秀。"
+    ],
+    "notes": "判断上下文：数值时译“秒伤”，定位时译“输出位”。"
+  },
+  {
+    "term": "タンク",
+    "aliases": [
+      "tank",
+      "盾役"
+    ],
+    "category": "battle",
+    "translation": "坦克 / 承伤位",
+    "meaning": "负责吸收伤害、保护队友或拉仇恨的角色。",
+    "examples": [
+      "高難度ではタンクがいると安定する。"
+    ],
+    "notes": "不要译成“水箱”。"
+  },
+  {
+    "term": "ヒーラー",
+    "aliases": [
+      "healer",
+      "回復役"
+    ],
+    "category": "battle",
+    "translation": "治疗 / 奶妈",
+    "meaning": "负责回复生命值或解除异常状态的角色。",
+    "examples": [
+      "このヒーラーは全体回復が強い。"
+    ],
+    "notes": "口语可译“奶妈”。"
+  },
+  {
+    "term": "ヘイト",
+    "aliases": [
+      "hate",
+      "aggro",
+      "敵視"
+    ],
+    "category": "battle",
+    "translation": "仇恨值 / 仇恨",
+    "meaning": "敌人选择攻击目标的倾向或优先级。",
+    "examples": [
+      "タンクがヘイトを取ってくれる。"
+    ],
+    "notes": "MMO语境固定译“仇恨”。"
+  },
+  {
+    "term": "スタン",
+    "aliases": [
+      "stun",
+      "気絶"
+    ],
+    "category": "battle",
+    "translation": "眩晕 / 控制",
+    "meaning": "让敌人短时间无法行动的控制效果。",
+    "examples": [
+      "スタンが入れば安全に殴れる。"
+    ],
+    "notes": "控制效果之一。"
+  },
+  {
+    "term": "ハメ",
+    "aliases": [
+      "ハメ技",
+      "ハメる"
+    ],
+    "category": "battle",
+    "translation": "连控 / 卡死 / 无限压制",
+    "meaning": "通过特定打法让敌人几乎无法反击或行动。",
+    "examples": [
+      "このボスは壁際でハメられる。"
+    ],
+    "notes": "可按语境译为“卡住、连控、压制”。"
+  },
+  {
+    "term": "初見殺し",
+    "aliases": [
+      "初见杀"
+    ],
+    "category": "slang",
+    "translation": "初见杀",
+    "meaning": "第一次遇到时很容易因为不了解机制而被击败的设计。",
+    "examples": [
+      "このギミックは完全に初見殺し。"
+    ],
+    "notes": "中文游戏圈也常直接说“初见杀”。"
+  },
+  {
+    "term": "ギミック",
+    "aliases": [
+      "gimmick",
+      "机制"
+    ],
+    "category": "battle",
+    "translation": "机制",
+    "meaning": "关卡、Boss 或玩法中的特殊规则和互动设计。",
+    "examples": [
+      "ギミックを理解しないとクリアできない。"
+    ],
+    "notes": "Boss 战常译为“机制”。"
+  },
+  {
+    "term": "高難度",
+    "aliases": [
+      "高难",
+      "エンドコンテンツ"
+    ],
+    "category": "battle",
+    "translation": "高难 / 高难本",
+    "meaning": "面向高练度玩家的高难度关卡或挑战。",
+    "examples": [
+      "高難度では耐久編成が安定する。"
+    ],
+    "notes": "二游语境常说“高难”。"
+  },
+  {
+    "term": "耐久",
+    "aliases": [
+      "耐久編成",
+      "耐久パ"
+    ],
+    "category": "battle",
+    "translation": "生存 / 耐久 / 苟活阵容",
+    "meaning": "依靠治疗、防御、护盾等长时间生存的打法或队伍。",
+    "examples": [
+      "耐久編成なら時間はかかるけど安定する。"
+    ],
+    "notes": "不要只译成物理“耐久性”。"
+  },
+  {
+    "term": "火力",
+    "aliases": [
+      "ダメージ",
+      "damage"
+    ],
+    "category": "battle",
+    "translation": "输出 / 伤害",
+    "meaning": "角色、队伍或敌人的伤害能力。",
+    "examples": [
+      "このボスの火力が高すぎる。"
+    ],
+    "notes": "游戏语境一般译为“输出/伤害”。"
+  },
+  {
+    "term": "沼る",
+    "aliases": [
+      "沼",
+      "沼った"
+    ],
+    "category": "slang",
+    "translation": "陷进坑里 / 抽卡或刷本上头",
+    "meaning": "在抽卡、刷本或某玩法中投入很多资源却停不下来或迟迟没有结果。",
+    "examples": [
+      "限定ガチャで完全に沼った。"
+    ],
+    "notes": "可译为“上头、陷坑、沉迷”。"
+  },
+  {
+    "term": "雑魚",
+    "aliases": [
+      "ザコ",
+      "mob"
+    ],
+    "category": "battle",
+    "translation": "小怪 / 杂兵 / 弱敌",
+    "meaning": "普通敌人或强度较低的敌方单位。",
+    "examples": [
+      "雑魚敵はワンパンできる。"
+    ],
+    "notes": "不要按人身攻击语境处理。"
+  },
+  {
+    "term": "ラスボス",
+    "aliases": [
+      "last boss",
+      "最终Boss"
+    ],
+    "category": "battle",
+    "translation": "最终 Boss / 最终头目",
+    "meaning": "游戏或章节最后面对的关键 Boss。",
+    "examples": [
+      "ラスボスの第二形態がきつい。"
+    ],
+    "notes": "ACG语境常用。"
+  },
+  {
+    "term": "縛りプレイ",
+    "aliases": [
+      "縛り",
+      "challenge run"
+    ],
+    "category": "challenge",
+    "translation": "限制玩法 / 自限挑战",
+    "meaning": "玩家主动限制角色、装备、等级或道具使用来增加难度。",
+    "examples": [
+      "低レア縛りで高難度を攻略する。"
+    ],
+    "notes": "不要误译成字面“捆绑玩法”。"
+  }
+]

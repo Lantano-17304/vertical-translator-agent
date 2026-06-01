@@ -1,0 +1,41 @@
+# --- Secrets / local env (never commit real keys) ---
+.env
+*.env
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+backend/.venv/
+.pytest_cache/
+.mypy_cache/
+
+# --- Node ---
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+npm-debug.log*
+
+# --- Local data / cookies ---
+chroma_data/
+cookies/
+*.cookies.txt
+cookies.txt
+
+# --- Eval outputs (regenerate with eval/llm_judge.py) ---
+eval/llm_judge_results.json
+
+# --- Editor / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Logs / temp ---
+*.log
+.run/
