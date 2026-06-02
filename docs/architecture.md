@@ -58,8 +58,8 @@ flowchart LR
 3. 后端解析视频 ID。
 4. 后端优先使用 `youtube-transcript-api` 获取字幕。
 5. 若被 YouTube 拦截，则回退到 `yt-dlp` 读取浏览器 cookies 并只下载字幕轨道。
-6. 后端截取字幕前 `YOUTUBE_TRANSCRIPT_MAX_CHARS` 字符用于演示翻译。
-7. 字幕文本进入同一套 Agent + RAG 翻译流程。
+6. 字幕按 `YOUTUBE_TRANSLATE_CHUNK_CHARS` 分块进入 Agent + RAG 翻译流程（流式预览逐块输出）。
+7. 下载完整翻译 SRT 时走 `/stream_translate_youtube_srt`，按 `TRANSLATE_BATCH_SIZE` 分批翻译并保留时间轴。
 
 ### 3. SRT/TXT 文件翻译
 

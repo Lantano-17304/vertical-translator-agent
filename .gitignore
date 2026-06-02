@@ -22,6 +22,7 @@ npm-debug.log*
 # --- Local data / cookies ---
 chroma_data/
 cookies/
+whisper_models/
 *.cookies.txt
 cookies.txt
 

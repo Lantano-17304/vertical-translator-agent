@@ -5,57 +5,332 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>垂直领域智能翻译 Agent</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f5f7fa; color: #333; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { margin-top: 0; color: #2c3e50; }
-        textarea { width: 100%; height: 100px; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; font-size: 16px;}
-        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #2980b9; }
-        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
-        .result-box { margin-top: 12px; padding: 15px; border: 1px solid #eee; border-radius: 4px; background-color: #f9f9f9; min-height: 150px; white-space: pre-wrap; font-size: 16px; line-height: 1.5; }
-        .thought { color: #888; font-style: italic; font-size: 14px;}
-        .translation { color: #2c3e50; font-weight: 500; }
-        .thought-box { margin-top: 12px; padding: 12px 15px; border: 1px dashed #ccc; border-radius: 4px; background-color: #fafafa; white-space: pre-wrap; line-height: 1.5; }
-        .toggle-row { margin-top: 20px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #555; }
-        .result-label { margin-top: 16px; font-size: 13px; color: #95a5a6; }
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --bg-container: #ffffff;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            --focus-ring: rgba(79, 70, 229, 0.2);
+            --btn-red: #ef4444;
+            --btn-red-hover: #dc2626;
+            --btn-purple: #8b5cf6;
+            --btn-purple-hover: #7c3aed;
+            --btn-dark: #334155;
+            --btn-dark-hover: #1e293b;
+            --btn-green: #10b981;
+            --btn-green-hover: #059669;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: var(--bg-container); 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01); 
+        }
+
+        h1 { 
+            margin-top: 0; 
+            color: #0f172a; 
+            font-size: 1.75rem; 
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: var(--text-light);
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        textarea, input[type="text"] { 
+            width: 100%; 
+            padding: 12px 14px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            font-size: 15px;
+            box-sizing: border-box;
+            background-color: #FAFAFA;
+            transition: all 0.2s ease;
+        }
+        
+        textarea {
+            height: 110px; 
+            resize: vertical; 
+            margin-bottom: 15px; 
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        input[type="file"]::file-selector-button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 10px;
+            color: var(--text-main);
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background-color: #e2e8f0;
+        }
+
+        button { 
+            background-color: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-size: 15px; 
+            font-weight: 500;
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover { 
+            background-color: var(--primary-hover); 
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled { 
+            background-color: #94a3b8; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+
+        .btn-red { background-color: var(--btn-red); }
+        .btn-red:hover { background-color: var(--btn-red-hover); }
+        
+        .btn-purple { background-color: var(--btn-purple); }
+        .btn-purple:hover { background-color: var(--btn-purple-hover); }
+        
+        .btn-dark { background-color: var(--btn-dark); }
+        .btn-dark:hover { background-color: var(--btn-dark-hover); }
+        
+        .btn-green { background-color: var(--btn-green); }
+        .btn-green:hover { background-color: var(--btn-green-hover); }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        hr {
+            margin: 30px 0; 
+            border: 0; 
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .checkbox-label {
+            display: flex; 
+            align-items: flex-start;
+            gap: 8px; 
+            font-size: 14px; 
+            color: var(--text-main);
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label.secondary {
+            color: var(--text-light);
+            font-size: 13px;
+            margin-left: 24px;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-top: 3px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .status-box {
+            margin: 10px 0 15px; 
+            padding: 12px 15px; 
+            font-size: 13px; 
+            color: var(--text-light); 
+            background: var(--bg-color); 
+            border: 1px solid var(--border-color);
+            border-radius: 6px; 
+            line-height: 1.5;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-left: 5px;
+        }
+
+        .result-label { margin-top: 25px; font-size: 14px; color: var(--text-light); font-weight: 500; }
+        
+        .result-box { 
+            margin-top: 8px; 
+            padding: 20px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            background-color: #fff; 
+            min-height: 120px; 
+            white-space: pre-wrap; 
+            font-size: 15px; 
+            line-height: 1.6;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+        }
+        
+        .thought-box { 
+            margin-top: 12px; 
+            padding: 15px; 
+            border: 1px dashed var(--border-color); 
+            border-radius: 8px; 
+            background-color: #f8fafc; 
+            white-space: pre-wrap; 
+            line-height: 1.5; 
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .translation { color: #0f172a; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 智能领域翻译 Agent</h1>
-        <p>输入含有游戏黑话或专有名词的外语：</p>
+        <h1>✨ 智能领域翻译 Agent</h1>
+        
+        <p>输入需要翻译的外语：</p>
         <textarea id="inputText" placeholder="例如：このゲームのデバフがエグい..."></textarea>
         <button id="translateBtn" onclick="startTranslation()">开始翻译</button>
 
-        <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;">
+        <hr>
 
         <p>▶️ 或者粘贴 YouTube 链接，自动抓取字幕并翻译：</p>
-        <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px; font-size:15px; box-sizing:border-box;">
-        <button id="youtubeBtn" onclick="startYoutubeTranslation()" style="background-color:#e74c3c;">页面预览翻译</button>
-        <button id="youtubeSrtBtn" onclick="downloadYoutubeSrt()" style="background-color:#8e44ad;">下载翻译字幕(SRT)</button>
-        <span id="youtubeSrtStatus" style="margin-left: 10px; color: #7f8c8d; font-size: 14px;"></span>
+        <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom: 12px;">
+        
+        <label class="checkbox-label">
+            <input type="checkbox" id="whisperFallback" onchange="refreshWhisperStatus()">
+            无 YouTube 字幕时用 Whisper 听写（有 CC 时仍优先用官方字幕，推荐）
+        </label>
+        <label class="checkbox-label secondary">
+            <input type="checkbox" id="whisperForce">
+            强制仅用 Whisper（不推荐，质量通常不如 YouTube 字幕）
+        </label>
+        
+        <div id="whisperStatusBox" class="status-box">
+            正在检查 Whisper 配置…
+        </div>
+        
+        <div class="btn-row">
+            <button id="youtubeBtn" onclick="startYoutubeTranslation()" class="btn-red">页面预览翻译</button>
+            <button id="youtubeSrtBtn" onclick="downloadYoutubeSrt()" class="btn-purple">下载翻译字幕 (SRT)</button>
+            <button id="youtubeVideoBtn" onclick="downloadYoutubeVideo()" class="btn-dark">下载原视频 (可选)</button>
+        </div>
+        <div>
+            <span id="youtubeSrtStatus" class="status-text"></span>
+            <span id="youtubeVideoStatus" class="status-text"></span>
+        </div>
 
-        <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ddd;">
+        <hr>
 
         <p>📁 或者批量翻译文件 (支持 .txt / .srt):</p>
-        <input type="file" id="fileInput" accept=".txt,.srt" style="margin-bottom: 10px;">
-        <br>
-        <button id="fileTranslateBtn" onclick="startFileTranslation()" style="background-color: #27ae60;">上传并翻译文件</button>
-        <span id="fileStatus" style="margin-left: 10px; color: #7f8c8d; font-size: 14px;"></span>
+        <input type="file" id="fileInput" accept=".txt,.srt">
+        <div class="btn-row">
+            <button id="fileTranslateBtn" onclick="startFileTranslation()" class="btn-green">上传并翻译文件</button>
+            <span id="fileStatus" class="status-text"></span>
+        </div>
 
-        <label class="toggle-row">
+        <hr>
+
+        <label class="checkbox-label" style="margin-top: 5px;">
             <input type="checkbox" id="showThoughts" onchange="toggleThoughts()">
             显示 Agent 思考过程（ReAct 推理 / 工具调用 / RAG 检索）
         </label>
 
-        <div id="thoughtBox" class="thought-box thought hidden"></div>
+        <div id="thoughtBox" class="thought-box hidden"></div>
 
         <div class="result-label">译文</div>
         <div id="resultBox" class="result-box">等候输入...</div>
     </div>
 
     <script>
+        function youtubeWhisperParams() {
+            const force = document.getElementById('whisperForce').checked;
+            const fallback = document.getElementById('whisperFallback').checked;
+            return {
+                use_whisper: (fallback || force) ? 'true' : 'false',
+                whisper_force: force ? 'true' : 'false',
+            };
+        }
+
+        document.getElementById('whisperForce').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('whisperFallback').checked = true;
+            }
+            refreshWhisperStatus();
+        });
+
+        async function refreshWhisperStatus() {
+            const box = document.getElementById('whisperStatusBox');
+            try {
+                const res = await fetch('/api/whisper-status');
+                const data = await res.json();
+                const color = data.ready ? '#1e8449' : '#c0392b';
+                let html = '<strong style="color:' + color + '">' + (data.message || '未知状态') + '</strong>';
+                if (data.model_path) {
+                    html += '<br><span style="font-size:12px">路径：' + data.model_path + '</span>';
+                }
+                if (data.missing_files && data.missing_files.length) {
+                    html += '<br><span style="font-size:12px">缺少：' + data.missing_files.join(', ') + '</span>';
+                }
+                if (data.details && data.details.length) {
+                    html += '<ul style="margin:6px 0 0 18px;padding:0;font-size:12px">';
+                    data.details.forEach(function(line) {
+                        html += '<li>' + line + '</li>';
+                    });
+                    html += '</ul>';
+                }
+                box.innerHTML = html;
+            } catch (e) {
+                box.innerHTML = '<span style="color:#c0392b">无法连接后端检查 Whisper 配置</span>';
+            }
+        }
+
         // 思考过程开关：默认隐藏，只显示干净译文
         function toggleThoughts() {
             const show = document.getElementById('showThoughts').checked;
@@ -132,25 +407,48 @@
                 alert("请先粘贴一个 YouTube 链接！");
                 return;
             }
+            const wp = youtubeWhisperParams();
+            if (wp.use_whisper === 'true') {
+                const st = await fetch('/api/whisper-status').then(r => r.json()).catch(() => ({}));
+                if (!st.ready) {
+                    alert('Whisper 尚未就绪：\n' + (st.message || '') + '\n\n请按页面下方说明配置 .env 中的 WHISPER_MODEL_PATH');
+                    return;
+                }
+            }
             const btn = document.getElementById('youtubeBtn');
-            consumeStream(`/api/translate-youtube?url=${encodeURIComponent(url)}`, btn);
+            const query = `url=${encodeURIComponent(url)}&use_whisper=${wp.use_whisper}&whisper_force=${wp.whisper_force}`;
+            consumeStream(`/api/translate-youtube?${query}`, btn);
         }
 
         // 模式二：下载带时间轴的翻译 SRT（流式进度 + 可选 Agent 思考过程）
-        function downloadYoutubeSrt() {
+        async function downloadYoutubeSrt() {
             const url = document.getElementById('youtubeUrl').value.trim();
             if (!url) {
                 alert("请先粘贴一个 YouTube 链接！");
                 return;
             }
+            const wp = youtubeWhisperParams();
+            if (wp.use_whisper === 'true') {
+                const st = await fetch('/api/whisper-status').then(r => r.json()).catch(() => ({}));
+                if (!st.ready) {
+                    alert('Whisper 尚未就绪：\n' + (st.message || '') + '\n\n请按页面下方说明配置 .env 中的 WHISPER_MODEL_PATH');
+                    return;
+                }
+            }
             const btn = document.getElementById('youtubeSrtBtn');
             const status = document.getElementById('youtubeSrtStatus');
             const resultBox = document.getElementById('resultBox');
+            const query = `url=${encodeURIComponent(url)}&use_whisper=${wp.use_whisper}&whisper_force=${wp.whisper_force}`;
 
-            status.textContent = "准备中…";
-            resultBox.textContent = "正在生成 SRT 字幕，请稍候…\n";
+            const forceOnly = wp.whisper_force === 'true';
+            status.textContent = forceOnly ? "准备中（强制 Whisper）…" : (wp.use_whisper === 'true' ? "准备中（优先 YouTube 字幕）…" : "准备中…");
+            resultBox.textContent = forceOnly
+                ? "强制 Whisper：将下载音频并听写，质量可能不如官方字幕，请稍候…\n"
+                : (wp.use_whisper === 'true'
+                    ? "优先抓取 YouTube 字幕；若无字幕再 Whisper，请稍候…\n"
+                    : "正在生成 SRT 字幕，请稍候…\n");
 
-            consumeStream(`/api/translate-youtube-srt?url=${encodeURIComponent(url)}`, btn, {
+            consumeStream(`/api/translate-youtube-srt?${query}`, btn, {
                 keepResult: true,
                 onProgress: function(data) {
                     const msg = data.message || (`${data.done}/${data.total}`);
@@ -180,6 +478,56 @@
                     }
                 }
             });
+        }
+
+        function _filenameFromContentDisposition(cd) {
+            if (!cd) return '';
+            // filename*=utf-8''xxx
+            const mStar = cd.match(/filename\*\s*=\s*utf-8''([^;]+)/i);
+            if (mStar && mStar[1]) {
+                try { return decodeURIComponent(mStar[1]); } catch { return mStar[1]; }
+            }
+            const m = cd.match(/filename\s*=\s*\"?([^\";]+)\"?/i);
+            return (m && m[1]) ? m[1] : '';
+        }
+
+        // 可选：下载 YouTube 原视频（后端默认关闭，需 .env 开关）
+        async function downloadYoutubeVideo() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            if (!url) {
+                alert("请先粘贴一个 YouTube 链接！");
+                return;
+            }
+            const btn = document.getElementById('youtubeVideoBtn');
+            const status = document.getElementById('youtubeVideoStatus');
+            status.textContent = "准备下载…（大文件可能较慢）";
+            btn.disabled = true;
+            try {
+                const res = await fetch(`/api/download-youtube-video?url=${encodeURIComponent(url)}`);
+                if (!res.ok) {
+                    const text = await res.text().catch(() => '');
+                    status.textContent = "❌ 下载失败";
+                    alert((text && text.trim()) ? text : `下载失败：HTTP ${res.status}`);
+                    return;
+                }
+                const cd = res.headers.get('content-disposition') || '';
+                const filename = _filenameFromContentDisposition(cd) || 'youtube_video.bin';
+                const blob = await res.blob();
+                const dlUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = dlUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(dlUrl);
+                status.textContent = "✅ 已开始下载：" + filename;
+            } catch (e) {
+                status.textContent = "❌ 下载失败";
+                alert("下载失败：" + (e && e.message ? e.message : String(e)));
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         async function startFileTranslation() {
@@ -228,6 +576,8 @@
                 btn.disabled = false;
             }
         }
+
+        refreshWhisperStatus();
     </script>
 </body>
 </html>

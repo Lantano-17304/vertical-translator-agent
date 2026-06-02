@@ -2,18 +2,31 @@ import io
 import re
 import json
 import os
+import tempfile
 import asyncio
+import threading
+from pathlib import Path
 from dotenv import load_dotenv
 
+# .env 放在仓库根目录；从 backend/ 启动 uvicorn 时也要能读到
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(_PROJECT_ROOT / ".env")
 load_dotenv()
 
 import pysrt
-from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import StreamingResponse, PlainTextResponse
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
+from fastapi.responses import StreamingResponse, PlainTextResponse, FileResponse
 from app.agent.core import agent_executor
 from app.term_domains import infer_term_domains, format_domain_selection
 from app.tools.dictionary import term_domains_scope
-from app.youtube_utils import extract_video_id, fetch_transcript, fetch_video_context, format_video_context
+from app.youtube_utils import (
+    extract_video_id,
+    fetch_transcript,
+    fetch_video_context,
+    format_video_context,
+    download_video_file,
+)
+from app.whisper_utils import check_whisper_setup
 from urllib.parse import quote
 
 app = FastAPI(title="Translator Agent API")
@@ -23,6 +36,14 @@ YOUTUBE_TRANSLATE_CHUNK_CHARS = int(os.environ.get("YOUTUBE_TRANSLATE_CHUNK_CHAR
 
 # 生成 SRT / 批量翻译文件时，一次交给 Agent 多少行字幕（保持行与时间轴一一对应）。
 TRANSLATE_BATCH_SIZE = int(os.environ.get("TRANSLATE_BATCH_SIZE", "20"))
+
+# 可选：是否允许下载 YouTube 原视频（默认关闭，避免误用与资源占用）
+ENABLE_YOUTUBE_VIDEO_DOWNLOAD = os.environ.get("ENABLE_YOUTUBE_VIDEO_DOWNLOAD", "0").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 def _sse(payload: dict) -> str:
@@ -80,6 +101,46 @@ def _strip_thinking_markers(text: str) -> str:
         return ""
     cleaned = _THINKING_BLOCK_RE.sub("", text)
     return cleaned.strip()
+
+
+_LEADING_JUNK_RE = re.compile(
+    r"^\s*(?:[-*#>\s]*)(?:翻译(?:结果)?[:：]|译文[:：]|参考翻译[:：])\s*",
+    re.IGNORECASE,
+)
+
+
+def _normalize_translation_line(text: str) -> str:
+    """把模型输出收敛成“单行译文”，用于 SRT/TXT 逐行翻译兜底。
+
+    兜底场景下模型偶尔会输出解释/分段/Markdown；这里做保守清洗：
+    - 去掉 <think> 块
+    - 丢弃明显是“说明/分隔符”的行
+    - 优先取最后一条像译文的非空行
+    """
+    cleaned = _strip_thinking_markers(text or "")
+    if not cleaned:
+        return ""
+
+    lines = [ln.strip() for ln in cleaned.splitlines() if ln.strip()]
+    if not lines:
+        return ""
+
+    def is_noise(line: str) -> bool:
+        if line in {"---", "—", "——"}:
+            return True
+        if line.startswith(("【", "（", "(", "注：", "说明", "意译", "直译", "结合")):
+            return True
+        if "翻译说明" in line or "意译说明" in line:
+            return True
+        return False
+
+    candidates = [ln for ln in lines if not is_noise(ln)]
+    picked = (candidates[-1] if candidates else lines[-1]).strip()
+    picked = picked.lstrip("> ").strip()
+    picked = _LEADING_JUNK_RE.sub("", picked).strip()
+    # 去掉常见加粗/引用符号
+    picked = picked.strip("*").strip()
+    return picked
 
 
 def _normalize_agent_output(text: str) -> str:
@@ -153,7 +214,15 @@ def _batch_prompt(batch: list[str], video_context: str | None = None) -> str:
 
 
 def _line_prompt(line: str, video_context: str | None = None) -> str:
-    return _inject_video_context(video_context, line, "翻译以下内容")
+    body = (
+        "请将下列内容翻译成地道、口语化的中文。\n"
+        "严格要求：\n"
+        "1. 只输出译文本身（单行），不要任何解释、不要分点、不要 Markdown；\n"
+        "2. 不要输出“翻译：/译文：/参考翻译：”等前缀；\n"
+        "3. 若原文不完整或缺上下文，也必须给出尽量贴近原意的一行译文，不要提问。\n\n"
+        f"{line}"
+    )
+    return _inject_video_context(video_context, body, "翻译以下内容")
 
 
 def _preview_prompt(chunk: str, video_context: str | None = None) -> str:
@@ -175,7 +244,7 @@ async def _translate_one_batch(batch: list[str], video_context: str | None = Non
     fallback: list[str] = []
     for line in batch:
         single = await agent_executor.ainvoke({"input": _line_prompt(line, video_context)})
-        fallback.append(_normalize_agent_output(str(single.get("output", ""))))
+        fallback.append(_normalize_translation_line(str(single.get("output", ""))))
     return fallback
 
 
@@ -203,7 +272,7 @@ async def _translate_one_batch_streaming(batch: list[str], video_context: str | 
                 yield frame, None
             else:
                 line_output = text or ""
-        fallback.append(_normalize_agent_output(line_output))
+        fallback.append(_normalize_translation_line(line_output))
     yield None, fallback
 
 
@@ -255,14 +324,79 @@ def _context_thought(video_context: str) -> str:
     return f"\n【视频背景】已注入翻译上下文：\n{preview}\n\n"
 
 
-async def _fetch_youtube_payload(url: str) -> tuple[str, list[dict], str, dict]:
+async def _fetch_youtube_payload(url: str, use_whisper: bool = False) -> tuple[str, list[dict], str, dict]:
     """并行抓取字幕与视频背景，返回 (video_id, snippets, formatted_context, raw_context)。"""
     video_id = extract_video_id(url)
     snippets, ctx = await asyncio.gather(
-        asyncio.to_thread(fetch_transcript, video_id),
+        asyncio.to_thread(fetch_transcript, video_id, use_whisper),
         asyncio.to_thread(fetch_video_context, video_id),
     )
     return video_id, snippets, format_video_context(ctx), ctx
+
+
+async def _stream_youtube_payload(
+    url: str,
+    use_whisper: bool = False,
+    whisper_force: bool = False,
+):
+    """流式抓取：先 yield status 进度，最后 yield payload。
+
+    use_whisper + 非 force：优先 YouTube 字幕（质量更好），失败再走 Whisper。
+    whisper_force：始终 Whisper，忽略 YouTube 字幕轨道。
+    """
+    video_id = extract_video_id(url)
+
+    if not use_whisper:
+        snippets, ctx = await asyncio.gather(
+            asyncio.to_thread(fetch_transcript, video_id, False),
+            asyncio.to_thread(fetch_video_context, video_id),
+        )
+        yield "payload", (video_id, snippets, format_video_context(ctx), ctx)
+        return
+
+    from app.whisper_utils import transcribe_youtube_audio
+
+    queue: asyncio.Queue = asyncio.Queue()
+    loop = asyncio.get_running_loop()
+
+    def progress(msg: str) -> None:
+        loop.call_soon_threadsafe(queue.put_nowait, ("status", msg))
+
+    def work() -> None:
+        try:
+            ctx = fetch_video_context(video_id)
+            if not whisper_force:
+                try:
+                    snippets = fetch_transcript(video_id, use_whisper=False)
+                    if snippets:
+                        progress(
+                            f"【字幕】已使用 YouTube 字幕（{len(snippets)} 条），"
+                            "翻译质量通常优于 Whisper 听写"
+                        )
+                        loop.call_soon_threadsafe(
+                            queue.put_nowait, ("done", (snippets, ctx))
+                        )
+                        return
+                except Exception as exc:
+                    progress(f"【字幕】无法获取 YouTube 字幕，改用 Whisper：{exc}")
+
+            snippets = transcribe_youtube_audio(video_id, progress_cb=progress)
+            loop.call_soon_threadsafe(queue.put_nowait, ("done", (snippets, ctx)))
+        except Exception as exc:  # noqa: BLE001  - 转发给主协程统一处理
+            loop.call_soon_threadsafe(queue.put_nowait, ("error", exc))
+
+    threading.Thread(target=work, daemon=True).start()
+
+    while True:
+        kind, data = await queue.get()
+        if kind == "status":
+            yield "status", data
+        elif kind == "error":
+            raise data
+        elif kind == "done":
+            snippets, ctx = data
+            yield "payload", (video_id, snippets, format_video_context(ctx), ctx)
+            return
 
 
 def _domain_thought(raw_ctx: dict) -> str:
@@ -379,6 +513,12 @@ async def stream_agent_events(text: str):
 def read_root():
     return {"message": "Hello from Python Backend"}
 
+
+@app.get("/whisper_status")
+def whisper_status():
+    """Whisper 可选功能是否就绪（供前端展示配置说明）。"""
+    return check_whisper_setup()
+
 @app.get("/stream_translate")
 async def stream_translate(text: str):
     """挂载了 LangChain Agent 和 RAG 检索的单句流式翻译接口。"""
@@ -395,15 +535,32 @@ async def stream_translate(text: str):
 
 
 @app.get("/stream_translate_youtube")
-async def stream_translate_youtube(url: str):
+async def stream_translate_youtube(url: str, use_whisper: bool = False, whisper_force: bool = False):
     """输入 YouTube 链接 -> 抓取字幕 -> 调用领域 Agent 流式翻译。"""
     async def event_generator():
         try:
             yield _thought("【YouTube】正在解析链接，并行抓取字幕与视频背景...\n")
-            video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url)
+            if whisper_force:
+                yield _thought(
+                    "【Whisper】强制模式：忽略 YouTube 字幕，仅本地听写（质量可能较差）。\n"
+                )
+            elif use_whisper:
+                yield _thought(
+                    "【Whisper】智能模式：优先使用 YouTube 字幕；仅在没有字幕时才本地听写。\n"
+                )
+            payload = None
+            async for kind, data in _stream_youtube_payload(url, use_whisper, whisper_force):
+                if kind == "status":
+                    yield _thought(f"\n{data}\n")
+                else:
+                    payload = data
+            video_id, snippets, video_context, raw_ctx = payload
 
             if not snippets:
-                yield _thought("\n【YouTube】未找到该视频的字幕。")
+                yield _thought(
+                    "\n【YouTube】未获得可用文本。"
+                    + ("（Whisper 识别结果为空）" if use_whisper else "（未找到该视频的字幕）")
+                )
                 yield "data: [DONE]\n\n"
                 return
 
@@ -441,13 +598,22 @@ async def stream_translate_youtube(url: str):
 
 
 @app.get("/download_translated_srt")
-async def download_translated_srt(url: str):
+async def download_translated_srt(url: str, use_whisper: bool = False, whisper_force: bool = False):
     """输入 YouTube 链接 -> 抓字幕(含时间轴) -> 批量翻译 -> 返回可下载的 .srt 文件。
 
     供脚本/直连下载；网页请用 /stream_translate_youtube_srt 以获取进度与思考过程。
     """
     try:
-        video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url)
+        if use_whisper:
+            payload = None
+            async for kind, data in _stream_youtube_payload(url, use_whisper, whisper_force):
+                if kind == "status":
+                    pass
+                else:
+                    payload = data
+            video_id, snippets, video_context, raw_ctx = payload
+        else:
+            video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url, False)
     except Exception as e:
         return PlainTextResponse(
             f"抓取字幕失败：{type(e).__name__}: {e}\n"
@@ -475,16 +641,82 @@ async def download_translated_srt(url: str):
     )
 
 
+@app.get("/download_youtube_video")
+async def download_youtube_video(url: str, background: BackgroundTasks):
+    """下载 YouTube 原视频（可选功能，默认关闭）。
+
+    返回二进制文件下载。会下载到临时目录，响应结束后自动清理。
+    """
+    if not ENABLE_YOUTUBE_VIDEO_DOWNLOAD:
+        raise HTTPException(
+            status_code=403,
+            detail="已禁用“下载原视频”功能。请在 .env 设置 ENABLE_YOUTUBE_VIDEO_DOWNLOAD=1 后重启后端。",
+        )
+
+    tmpdir = Path(tempfile.mkdtemp(prefix="yt_video_"))
+
+    def _cleanup():
+        try:
+            for p in tmpdir.glob("*"):
+                try:
+                    p.unlink()
+                except Exception:
+                    pass
+            tmpdir.rmdir()
+        except Exception:
+            pass
+
+    background.add_task(_cleanup)
+
+    try:
+        file_path, download_name = download_video_file(url, output_dir=tmpdir)
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                f"下载视频失败：{type(e).__name__}: {e}\n"
+                "（提示：国内访问 YouTube 需在 .env 配置 YOUTUBE_PROXY；"
+                "若提示登录/校验，请设置 YOUTUBE_COOKIES_FROM_BROWSER 并确保已登录；"
+                "必要时更新 yt-dlp。）"
+            ),
+        )
+
+    return FileResponse(
+        path=str(file_path),
+        media_type="application/octet-stream",
+        filename=download_name,
+        background=background,
+    )
+
+
 @app.get("/stream_translate_youtube_srt")
-async def stream_translate_youtube_srt(url: str):
+async def stream_translate_youtube_srt(url: str, use_whisper: bool = False, whisper_force: bool = False):
     """YouTube 链接 -> 流式翻译并导出 SRT（推送进度 + Agent 思考过程，结束时下发文件内容）。"""
     async def event_generator():
         try:
             yield _thought("【SRT 导出】正在解析链接，并行抓取字幕与视频背景...\n")
-            video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url)
+            if whisper_force:
+                yield _thought(
+                    "【Whisper】强制模式：忽略 YouTube 字幕，仅本地听写（质量可能较差）。\n"
+                )
+            elif use_whisper:
+                yield _thought(
+                    "【Whisper】智能模式：优先使用 YouTube 字幕；仅在没有字幕时才本地听写。\n"
+                )
+            payload = None
+            async for kind, data in _stream_youtube_payload(url, use_whisper, whisper_force):
+                if kind == "status":
+                    yield _progress(0, 0, data)
+                    yield _thought(f"\n{data}\n")
+                else:
+                    payload = data
+            video_id, snippets, video_context, raw_ctx = payload
 
             if not snippets:
-                yield _thought("\n【SRT 导出】未找到该视频的字幕。\n")
+                yield _thought(
+                    "\n【SRT 导出】未获得可用文本。"
+                    + ("（Whisper 识别结果为空）\n" if use_whisper else "（未找到该视频的字幕）\n")
+                )
                 yield "data: [DONE]\n\n"
                 return
 

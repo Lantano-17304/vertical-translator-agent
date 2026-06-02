@@ -1,22 +1,22 @@
 # 垂直领域智能翻译 Agent
 
-面向日语游戏/ACG 视频字幕的全栈 AI Agent 翻译产品。项目采用前后端分离架构：Node.js BFF 负责 UI 与 SSE 流式转发，Python FastAPI 后端负责 YouTube 字幕抓取、LangChain Agent 编排、RAG 术语检索和批量字幕翻译。
+面向日语游戏 / ACG / VTuber 视频字幕的全栈 AI Agent 翻译产品。采用前后端分离：Node.js BFF 负责 UI 与 SSE 流式转发，Python FastAPI 负责 YouTube 字幕抓取、LangChain Agent 编排、RAG 术语检索与批量字幕翻译。
 
 ## 功能
 
-- 单句领域翻译：输入含游戏黑话/专有名词的日语文本，输出地道中文。
-- YouTube 字幕翻译：输入 YouTube 链接，自动抓取字幕并调用 Agent 翻译。
-- SRT/TXT 批量翻译：上传字幕文件，返回翻译后的文本文件。
-- RAG 术语检索：分领域词库 `backend/app/data/terms/*.json`，YouTube 翻译时按视频背景自动选 domain 加载。
-- Agent 思考过程：默认只展示译文，可展开查看 ReAct 推理、工具调用和 RAG 返回。
-- LLM-as-a-judge：自动评测 20 条术语翻译用例，输出通过率和平均分。
+- **单句领域翻译**：输入含游戏黑话、专有名词的日语文本，流式输出中文；可展开 ReAct 推理与 RAG 检索过程。
+- **YouTube 字幕翻译**：输入链接，自动抓取字幕（可选 Whisper 听写降级），按视频背景推断术语 domain 后分块翻译。
+- **翻译字幕下载**：页面流式生成并下载 `{videoId}_zh.srt`，保留原时间轴。
+- **SRT/TXT 批量翻译**：上传字幕文件，返回 `translated_原文件名`。
+- **RAG 术语检索**：分领域词库 `backend/app/data/terms/*.json`（`gaming` / `cooking` / `general` / `vtuber`）。
+- **LLM-as-a-judge**：`eval/llm_judge.py` 对 20 条术语用例自动评分。
 
 ## 技术栈
 
-- 前端/BFF：Node.js、Express、Server-Sent Events
-- 后端：Python、FastAPI、LangChain、ChromaDB
-- 字幕抓取：`youtube-transcript-api` + `yt-dlp`
-- 大模型：兼容 OpenAI API 的模型服务（已适配 DeepSeek）
+- 前端 / BFF：Node.js、Express、Server-Sent Events
+- 后端：Python 3.10+、FastAPI、LangChain、ChromaDB
+- 字幕：`youtube-transcript-api`、`yt-dlp`；可选 `faster-whisper`
+- 大模型：兼容 OpenAI API（已适配 DeepSeek）
 - 评测：LLM-as-a-judge
 
 ## 项目结构
@@ -25,205 +25,195 @@
 .
 ├── backend/
 │   ├── app/
-│   │   ├── agent/core.py          # LangChain Agent 核心
-│   │   ├── data/terms/            # 分领域术语库（gaming / cooking / general …）
-│   │   │   ├── gaming.json
-│   │   │   ├── cooking.json
-│   │   │   └── general.json
+│   │   ├── agent/core.py          # LangChain Agent
+│   │   ├── data/terms/            # 分领域术语 JSON
 │   │   ├── tools/dictionary.py    # RAG 术语工具
-│   │   ├── youtube_utils.py       # YouTube 字幕抓取
-│   │   └── main.py                # FastAPI 接口
-│   ├── Dockerfile
-│   └── requirements.txt
+│   │   ├── term_domains.py        # YouTube 背景 → domain 推断
+│   │   ├── youtube_utils.py       # 字幕抓取
+│   │   ├── whisper_utils.py       # 可选 Whisper
+│   │   └── main.py                # FastAPI
+│   ├── requirements.txt
+│   └── requirements-whisper.txt   # 可选语音识别
 ├── frontend/
-│   ├── public/index.html          # UI
-│   ├── server.js                  # Node.js BFF
-│   ├── Dockerfile
-│   └── package.json
-├── eval/llm_judge.py              # LLM-as-a-judge 评测脚本
-├── docs/architecture.md           # 架构图与 API 文档
-├── docs/GITHUB.md                 # Git / GitHub 推送与交付说明
-├── scripts/                       # 后端/前端分窗口启动脚本
-├── start.bat / start.ps1          # Windows 一键启动
+│   ├── public/index.html
+│   └── server.js                  # BFF :3000
+├── eval/llm_judge.py
+├── docs/
+│   ├── architecture.md            # 架构与 API
+│   ├── WHISPER_SETUP.md           # Whisper 本地模型
+│   └── GITHUB.md                  # Git 推送说明
+├── scripts/
+├── start.bat / start.ps1 / start.sh
 ├── docker-compose.yml
 └── .env.example
 ```
 
+## 快速开始
+
+**环境**：Python 3.10+、Node.js；复制 `.env.example` 为 `.env` 并填写 `OPENAI_API_KEY`（及国内 YouTube 所需的 `YOUTUBE_PROXY`、`YOUTUBE_COOKIES_FROM_BROWSER`）。
+
+**Windows**（项目根目录）：
+
+```powershell
+.\start.ps1
+# 或双击 start.bat；停止：start.bat stop
+```
+
+**Linux / macOS / Git Bash**：
+
+```bash
+chmod +x start.sh && ./start.sh
+```
+
+脚本会检查/生成 `.env`、创建 `backend\.venv`、安装依赖，启动后端 **8000** 与 BFF **3000**，并打开 http://localhost:3000 。
+
+| 参数 | 说明 |
+|------|------|
+| `-SkipInstall` / `--skip-install` | 跳过 pip、npm（二次启动更快） |
+| `-NoBrowser` / `--no-browser` | 不自动打开浏览器 |
+| `-Stop` / `--stop` | 释放 8000、3000 端口 |
+
+**健康检查**：http://127.0.0.1:8000/ 应返回 `{"message":"Hello from Python Backend"}`。
+
 ## 环境变量
 
-复制 `.env.example` 为 `.env`，填写自己的密钥：
+根目录 `.env` 主要项（完整列表见 `.env.example`）：
 
 ```env
 OPENAI_API_KEY=sk-你的密钥
 OPENAI_BASE_URL=https://api.deepseek.com/v1
 
-# 国内访问 YouTube 通常需要代理
+# 国内访问 YouTube 通常需要
 YOUTUBE_PROXY=socks5://127.0.0.1:10808
+YOUTUBE_COOKIES_FROM_BROWSER=firefox
 
-# 如果 YouTube 出现登录/机器人校验，读取本机已登录浏览器 cookies
-YOUTUBE_COOKIES_FROM_BROWSER=edge
+# Agent 防死循环（可选）
+AGENT_MAX_ITERATIONS=5
+AGENT_MAX_EXECUTION_TIME=60
 ```
 
-注意：`.env` 已被 `.gitignore` 忽略，不要提交真实密钥。
+`.env` 已加入 `.gitignore`，勿提交真实密钥。
 
-## 本地运行
+## 本地运行（手动）
 
-### 一键启动（推荐）
+需先在一键脚本中生成 `backend\.venv`，或自行 `python -m venv backend\.venv` 并 `pip install -r backend/requirements.txt`。
 
-需已安装 **Python 3.10+** 与 **Node.js**。
-
-**Windows**（PowerShell 或双击）：
+**终端 1 — 后端**（在 `backend` 目录）：
 
 ```powershell
-.\start.ps1
-# 或双击 start.bat（结束后窗口会 pause，便于查看报错；首次 pip 安装较慢）
+.\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+# Linux/macOS: .venv/bin/python -m uvicorn app.main:app --reload --port 8000
 ```
 
-停止服务：双击或在命令行运行 `start.bat stop`。
-
-**Linux / macOS / Git Bash**：
-
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-脚本会自动：检查/生成 `.env`、创建 `backend\.venv`、安装依赖、在独立窗口（Windows）或本终端后台（Unix）启动后端 `8000` 与前端 `3000`，并打开 http://localhost:3000 。
-
-常用参数：
-
-| 参数 | 说明 |
-|------|------|
-| `-SkipInstall` / `--skip-install` | 跳过 pip、npm 安装（二次启动更快） |
-| `-NoBrowser` / `--no-browser` | 不自动打开浏览器 |
-| `-Stop` / `--stop` | 停止占用 8000、3000 端口的进程 |
-
-### 手动分步启动
-
-### 1. 启动后端
+**终端 2 — 前端**（在 `frontend` 目录）：
 
 ```powershell
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-
-健康检查：
-
-```text
-http://127.0.0.1:8000/
-```
-
-正常返回：
-
-```json
-{"message":"Hello from Python Backend"}
-```
-
-### 2. 启动前端/BFF
-
-另开一个终端：
-
-```powershell
-cd frontend
 npm install
 npm run dev
 ```
 
-访问：
+访问 http://localhost:3000 。
 
-```text
-http://localhost:3000
-```
-
-## Docker 运行
+## Docker
 
 ```powershell
 docker compose up --build
 ```
 
-如果拉取基础镜像失败，通常是 Docker Desktop 的代理或镜像源问题。可先使用本地运行方式完成开发验证，最终交付前再处理 Docker 网络。
+若拉取基础镜像失败，多为 Docker 代理或镜像源问题，可先用本地 `start.ps1` 验证功能。
+
+## 页面功能说明
+
+| 入口 | 说明 |
+|------|------|
+| 开始翻译 | 单句 SSE 流式翻译 |
+| 页面预览翻译 | YouTube 链接，流式显示译文 |
+| 下载翻译字幕 (SRT) | 全量字幕翻译后下载 `{videoId}_zh.srt` |
+| 上传并翻译文件 | `.srt` / `.txt` 批量翻译 |
+
+默认只显示译文；勾选「显示 Agent 思考过程」可查看推理与工具调用。
+
+### Whisper（可选）
+
+默认不安装 Whisper，优先使用 YouTube 官方 / CC 字幕（**推荐**）。需听写时：
+
+```powershell
+cd backend
+.\.venv\Scripts\pip install -r requirements-whisper.txt
+```
+
+| 页面选项 | 行为 |
+|----------|------|
+| 都不勾选 | 仅 YouTube 字幕（`youtube-transcript-api` → `yt-dlp`） |
+| 无字幕时用 Whisper | 有 CC 仍用 YouTube；无字幕才 `faster-whisper` |
+| 强制仅用 Whisper | 忽略 YouTube 字幕（不推荐） |
+
+本地模型：在 `.env` 设置 `WHISPER_MODEL_PATH` 后重启后端。配置步骤见 [docs/WHISPER_SETUP.md](docs/WHISPER_SETUP.md)，或运行 `.\scripts\setup-whisper-model.ps1`。页面会显示 Whisper 是否就绪。
+
+Whisper 相关变量：`WHISPER_MODEL`、`WHISPER_DEVICE`、`WHISPER_LANGUAGE`、`HF_ENDPOINT`、`HF_PROXY` 等，见 `.env.example`。
 
 ## 验证用例
 
-### 单句翻译
-
-输入：
+**单句** — 输入：
 
 ```text
 このゲームのデバフがエグい
 ```
 
-预期：
+预期：Agent 查询 `デバフ`、`エグい`，译文体现「减益/负面状态」与「强得离谱」等含义。
 
-- Agent 调用术语工具查询 `デバフ` / `エグい`。
-- 译文能体现“负面状态/减益”和“离谱、强得夸张”的含义。
+**YouTube** — 使用有字幕的链接。常见问题：
 
-### YouTube 链接翻译
+- `RequestBlocked`：会自动回退 `yt-dlp`，检查代理与 cookies。
+- `Sign in to confirm`：在浏览器登录 YouTube，设置 `YOUTUBE_COOKIES_FROM_BROWSER`。
+- `未找到字幕轨道`：可安装 Whisper 并勾选「无字幕时用」。
 
-输入有字幕的 YouTube 链接。若出现：
-
-- `RequestBlocked`：YouTube 拦截轻量 API，会自动回退到 `yt-dlp`。
-- `Sign in to confirm`：确认浏览器已登录 YouTube，并设置 `YOUTUBE_COOKIES_FROM_BROWSER=edge/chrome/firefox`。
-- `未找到字幕轨道`：该视频可能没有公开字幕，换一个带 CC 字幕的视频。
-
-### 文件翻译
-
-上传 `.txt` 或 `.srt` 文件，预期下载 `translated_原文件名`。
+**文件** — 上传 `.srt` / `.txt`，下载 `translated_*` 文件。
 
 ## 量化评测
 
-运行：
-
 ```powershell
-python eval/llm_judge.py
+# 项目根目录，建议使用 backend 虚拟环境
+backend\.venv\Scripts\python eval\llm_judge.py
+backend\.venv\Scripts\python eval\llm_judge.py --limit 2
 ```
 
-快速试跑前 2 条：
+输出：逐条译文、通过/失败、0–5 分、理由；汇总通过率与平均分；结果写入 `eval/llm_judge_results.json`。
 
-```powershell
-python eval/llm_judge.py --limit 2
-```
-
-输出：
-
-- 每条用例的译文、通过/失败、0-5 分、理由。
-- 总通过率和平均分。
-- 结果文件：`eval/llm_judge_results.json`。
-
-建议交付标准：
-
-- `pass_rate >= 80%`
-- `avg_score >= 4.0 / 5`
+建议交付标准：`pass_rate >= 80%`，`avg_score >= 4.0 / 5`。
 
 ## API 摘要
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `GET` | `/` | 健康检查 |
-| `GET` | `/stream_translate?text=...` | 单句流式翻译 |
-| `GET` | `/stream_translate_youtube?url=...` | YouTube 字幕抓取 + 流式翻译 |
-| `POST` | `/api/translate-srt` | SRT/TXT 文件批量翻译 |
+浏览器经 BFF（`:3000`）访问；直连 Python 后端为 `:8000`。
 
-完整说明见 `docs/architecture.md`。
+| 方法 | BFF 路径 | 后端路径 | 说明 |
+|------|----------|----------|------|
+| `GET` | `/api/translate` | `/stream_translate` | 单句 SSE |
+| `GET` | `/api/translate-youtube` | `/stream_translate_youtube` | YouTube 预览 SSE；支持 `use_whisper`、`whisper_force` |
+| `GET` | `/api/translate-youtube-srt` | `/stream_translate_youtube_srt` | 流式翻译并下发 SRT |
+| `GET` | `/api/whisper-status` | `/whisper_status` | Whisper 配置状态 |
+| `POST` | `/api/translate-srt` | `/api/translate-srt` | 上传 SRT/TXT |
+| `GET` | — | `/download_translated_srt` | 直连下载 SRT（无进度流） |
+| `GET` | — | `/` | 健康检查 |
+
+完整说明见 [docs/architecture.md](docs/architecture.md)。
 
 ## 课程评分对应
 
 | 评分项 | 项目对应实现 |
 | --- | --- |
-| 复杂 Agent 架构 30% | LangChain tool-calling Agent + RAG 术语工具 + 可视化思考过程 |
-| AI 结对编程 20% | 使用 Cursor/Copilot 迭代搭建、调试、测试与文档化 |
-| 极致分离 20% | Node.js BFF 与 Python AI 编排层分离，REST/SSE 通信 |
-| 量化评判 15% | `eval/llm_judge.py` 自动化评测 |
-| 工程规范 15% | Dockerfile、docker-compose、README、架构图、API 文档 |
+| 复杂 Agent 架构 30% | LangChain tool-calling Agent + RAG + 可展示思考过程 |
+| AI 结对编程 20% | Cursor / Copilot 迭代开发、调试与文档 |
+| 极致分离 20% | Node.js BFF 与 Python AI 层分离，REST / SSE |
+| 量化评判 15% | `eval/llm_judge.py` |
+| 工程规范 15% | Docker、README、架构与 API 文档 |
 
 ## Git / GitHub 交付
 
-本地尚未初始化 Git 时，按 **[docs/GITHUB.md](docs/GITHUB.md)** 完成 `git init`、首次提交、关联 `origin` 与 `git push`。切勿将 `.env`、虚拟环境或 `chroma_data/` 推送到远程。
+尚未初始化 Git 时，见 [docs/GITHUB.md](docs/GITHUB.md)。勿推送 `.env`、`backend/.venv`、`node_modules`、`chroma_data/` 等。
 
 ## 后续优化
 
-- 增加 `max_iterations` / `handle_parsing_errors`，进一步限制 Agent 死循环风险。
-- 继续扩充 `backend/app/data/terms/{domain}.json`；新领域新建同名 JSON 并在 `term_domains.py` 补充关键词。
-- 增加“翻译 Agent + 校对 Agent”双 Agent 协作。
-- YouTube 长视频可改为分段翻译并合并结果。
+- 继续扩充 `backend/app/data/terms/{domain}.json`；新领域在 `term_domains.py` 补充关键词。
+- 翻译 Agent + 校对 Agent 双阶段协作。
+- YouTube 超长视频的分段合并与进度优化。

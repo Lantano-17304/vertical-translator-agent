@@ -1,4 +1,4 @@
-"""YouTube 字幕抓取工具。
+r"""YouTube 字幕抓取工具。
 
 负责：
 1. 从各种 YouTube 链接格式中解析出 11 位 videoId；
@@ -11,8 +11,9 @@
     YOUTUBE_PROXY=socks5://127.0.0.1:10808    # SOCKS5 端口(需 PySocks)
 未设置时直连。
 
-如果 YouTube 返回 "Sign in to confirm" 机器人校验，可配置：
-    YOUTUBE_COOKIES_FROM_BROWSER=edge
+如果 YouTube 返回 "Sign in to confirm" / No video formats found，可配置：
+    YOUTUBE_COOKIES_FROM_BROWSER=firefox
+并安装 Node.js，保持 YOUTUBE_REMOTE_COMPONENTS=ejs:github（默认启用）。
 或：
     YOUTUBE_COOKIE_FILE=C:\path\to\cookies.txt
 """
@@ -21,12 +22,15 @@ import os
 import re
 import json
 import tempfile
+import time
 from html import unescape
 from pathlib import Path
 
 import yt_dlp
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import GenericProxyConfig
+
+from app.ytdlp_config import build_ytdlp_opts
 
 # 注入翻译 prompt 的简介最大字符数（过长会占满上下文）
 YOUTUBE_CONTEXT_MAX_CHARS = int(os.environ.get("YOUTUBE_CONTEXT_MAX_CHARS", "1000"))
@@ -82,23 +86,7 @@ def _proxy_url() -> str | None:
 
 def _base_ydl_opts() -> dict:
     """yt-dlp 通用选项：只拉 metadata/字幕，不下载视频。"""
-    opts: dict = {
-        "quiet": True,
-        "no_warnings": True,
-        "skip_download": True,
-        "ignore_no_formats_error": True,
-        "format": "best/bestaudio/bestvideo",
-    }
-    proxy = _proxy_url()
-    if proxy:
-        opts["proxy"] = proxy
-    cookies_from_browser = os.environ.get("YOUTUBE_COOKIES_FROM_BROWSER", "").strip()
-    cookie_file = os.environ.get("YOUTUBE_COOKIE_FILE", "").strip()
-    if cookies_from_browser:
-        opts["cookiesfrombrowser"] = (cookies_from_browser,)
-    if cookie_file:
-        opts["cookiefile"] = cookie_file
-    return opts
+    return build_ytdlp_opts(skip_download=True)
 
 
 def _truncate_text(text: str, max_chars: int) -> str:
@@ -361,12 +349,17 @@ def _fetch_with_ytdlp(video_id: str) -> list[dict]:
     return snippets
 
 
-def fetch_transcript(video_id: str) -> list[dict]:
+def fetch_transcript(video_id: str, use_whisper: bool = False) -> list[dict]:
     """抓取字幕，返回 [{"text": ..., "start": ...}, ...]。
 
-    先用轻量 API 抓取；若被 YouTube 拦截，则回退到 yt-dlp 只抓字幕。
-    抓取失败由调用方捕获异常并提示(通常是代理或视频无字幕)。
-    """
+    use_whisper=False（默认）：youtube-transcript-api，失败则 yt-dlp 字幕轨道。
+    use_whisper=True（页面手动开启）：跳过字幕轨道，直接用 faster-whisper 转写音频。
+  """
+    if use_whisper:
+        from app.whisper_utils import transcribe_youtube_audio
+
+        return transcribe_youtube_audio(video_id)
+
     try:
         return _fetch_with_transcript_api(video_id)
     except Exception as primary_error:
@@ -378,3 +371,53 @@ def fetch_transcript(video_id: str) -> list[dict]:
                 f"youtube-transcript-api={type(primary_error).__name__}: {primary_error}; "
                 f"yt-dlp={type(fallback_error).__name__}: {fallback_error}"
             ) from fallback_error
+
+
+def download_video_file(url_or_id: str, *, output_dir: Path) -> tuple[Path, str]:
+    """下载 YouTube 原视频到指定目录，返回 (文件路径, 建议文件名)。
+
+    注意：这是可选功能，通常用于“用户明确想下载原视频”的场景。
+    代理/cookies/Node.js/ejs 组件等配置复用 build_ytdlp_opts 的环境变量。
+    """
+    video_id = extract_video_id(url_or_id)
+    url = f"https://www.youtube.com/watch?v={video_id}"
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    # 让 yt-dlp 自己决定扩展名；同一 video_id 下只会生成一个主视频文件
+    outtmpl = str(output_dir / f"{video_id}.%(ext)s")
+    format_selector = os.environ.get("YOUTUBE_VIDEO_FORMAT", "").strip() or "bv*+ba/b"
+
+    ydl_opts = build_ytdlp_opts(
+        skip_download=False,
+        outtmpl=outtmpl,
+        format_selector=format_selector,
+        quiet=True,
+    )
+    # 降低资源占用：不写字幕、不写描述、不写缩略图
+    ydl_opts.update(
+        {
+            "writesubtitles": False,
+            "writeautomaticsub": False,
+            "writethumbnail": False,
+            "writeinfojson": False,
+            "overwrites": True,
+        }
+    )
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+
+    # yt-dlp 可能输出 m4a/webm 等不同容器；从 outtmpl 推断实际文件
+    candidates = sorted(output_dir.glob(f"{video_id}.*"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not candidates:
+        # 避免极端情况下下载到了临时碎片却没合成
+        time.sleep(0.2)
+        candidates = sorted(output_dir.glob(f"{video_id}.*"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not candidates:
+        raise RuntimeError("视频下载完成后未找到输出文件")
+
+    file_path = candidates[0]
+    title = (info.get("title") or video_id).strip()
+    safe_title = re.sub(r'[\\/:*?"<>|]+', "_", title).strip()[:120] or video_id
+    download_name = f"{safe_title}.{file_path.suffix.lstrip('.')}"
+    return file_path, download_name
