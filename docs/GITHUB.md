@@ -71,8 +71,6 @@ copy .env.example .env
 
 浏览器访问：http://localhost:3000
 
-Docker 方式见根目录 `README.md` 中 `docker compose up --build`。
-
 ## 6. 常见问题
 
 | 问题 | 处理 |

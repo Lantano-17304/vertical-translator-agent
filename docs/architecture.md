@@ -189,4 +189,4 @@ Agent 的 system prompt 明确要求：
 - 前端/BFF 层只负责交互和流式转发，不直接调用 LLM。
 - Python 后端负责 AI 编排、字幕处理、Agent/RAG 逻辑。
 - YouTube 获取只抓字幕，不下载视频，避免把项目范围扩展成视频处理/ASR 管线。
-- Docker 用于最终交付环境；本地开发可直接启动 Python/Node 进程。
+- 本地开发使用 `start.ps1` / `start.sh` 一键启动 Python 与 Node 进程。

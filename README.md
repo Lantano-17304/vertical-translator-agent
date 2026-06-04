@@ -44,7 +44,6 @@
 │   └── GITHUB.md                  # Git 推送说明
 ├── scripts/
 ├── start.bat / start.ps1 / start.sh
-├── docker-compose.yml
 └── .env.example
 ```
 
@@ -113,14 +112,6 @@ npm run dev
 ```
 
 访问 http://localhost:3000 。
-
-## Docker
-
-```powershell
-docker compose up --build
-```
-
-若拉取基础镜像失败，多为 Docker 代理或镜像源问题，可先用本地 `start.ps1` 验证功能。
 
 ## 页面功能说明
 
@@ -206,7 +197,7 @@ backend\.venv\Scripts\python eval\llm_judge.py --limit 2
 | AI 结对编程 20% | Cursor / Copilot 迭代开发、调试与文档 |
 | 极致分离 20% | Node.js BFF 与 Python AI 层分离，REST / SSE |
 | 量化评判 15% | `eval/llm_judge.py` |
-| 工程规范 15% | Docker、README、架构与 API 文档 |
+| 工程规范 15% | 一键启动脚本、README、架构与 API 文档 |
 
 ## Git / GitHub 交付
 

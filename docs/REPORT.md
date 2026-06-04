@@ -139,13 +139,13 @@ System Prompt 明确要求“遇到疑难名词必须调用工具”，强约束
 
 - **代码审计**：识别出原计划中 `create_tool_calling_agent` 与 `langchain==0.1.0` 版本不兼容、缺失 `pysrt` / `python-multipart`、`\n` 转义 Bug 等隐患。
 - **依赖治理**：将 LangChain 锁定到稳定的 0.3.x 线，去掉会安装失败的 `sentence-transformers`。
-- **疑难排障**：逐步定位并解决 `OPENAI_API_KEY` 加载顺序、Docker 代理、YouTube `RequestBlocked` / `Sign in to confirm` / `live_chat` 等真实问题。
+- **疑难排障**：逐步定位并解决 `OPENAI_API_KEY` 加载顺序、网络代理、YouTube `RequestBlocked` / `Sign in to confirm` / `live_chat` 等真实问题。
 - **产品打磨**：把术语库从硬编码改为 JSON 数据驱动、思考过程折叠、字幕完整分块翻译。
 - **测试生成**：生成 LLM-as-a-judge 评测脚本与术语用例。
 
 ## 7. 工程规范
 
-- `Dockerfile`（前后端）+ `docker-compose.yml` 一键编排。
+- `start.ps1` / `start.sh` / `start.bat` 一键启动前后端。
 - `requirements.txt` / `package.json` 锁定依赖。
 - `.gitignore` 排除 `.env`、`node_modules`、`chroma_data`。
 - `.env.example` 提供配置模板，密钥不入库。
@@ -159,7 +159,7 @@ System Prompt 明确要求“遇到疑难名词必须调用工具”，强约束
 | AI 结对编程 | 20% | 全流程 Cursor 协作，自动化评测脚本 |
 | 极致分离 | 20% | Node BFF 与 Python 编排层分离，REST/SSE 通信 |
 | 量化评判 | 15% | LLM-as-a-judge，20 用例，通过率/均分 |
-| 工程规范 | 15% | Docker、README、架构图、API 文档 |
+| 工程规范 | 15% | 一键启动脚本、README、架构图、API 文档 |
 
 ## 9. 局限与后续优化
 
