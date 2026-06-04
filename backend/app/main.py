@@ -422,6 +422,7 @@ def _build_srt(snippets: list[dict], translations: list[str]) -> str:
 
     YouTube 滚动字幕片段常有重叠；导出前把每条结束时间截到下一条开始之前，
     避免标准播放器出现双线交替/叠显。
+    译文与源文本均为空白的条目会跳过（B 站等平台不接受空字幕块）。
     """
     count = len(snippets)
     if count == 0:
@@ -453,9 +454,17 @@ def _build_srt(snippets: list[dict], translations: list[str]) -> str:
         times[i] = (start_i, end_i)
 
     blocks: list[str] = []
+    seq = 0
     for i, ((start, end), text) in enumerate(zip(times, translations)):
+        line = (text or "").strip()
+        if not line:
+            # 翻译失败或源片段无内容时不输出，避免 B 站等平台拒收“空字幕条”
+            line = str(snippets[i].get("text", "")).strip()
+        if not line:
+            continue
+        seq += 1
         blocks.append(
-            f"{i + 1}\n{_format_srt_time(start)} --> {_format_srt_time(end)}\n{text}\n"
+            f"{seq}\n{_format_srt_time(start)} --> {_format_srt_time(end)}\n{line}\n"
         )
     return "\n".join(blocks)
 
@@ -795,11 +804,18 @@ async def translate_srt(file: UploadFile = File(...)):
         async for _done, _total, start, batch in translate_lines_keep_index(originals):
             for offset, text in enumerate(batch):
                 translated[start + offset] = text
+        kept: list = []
         for sub, text in zip(subs, translated):
-            sub.text = text
+            line = (text or "").strip()
+            if not line:
+                continue
+            sub.text = line
+            kept.append(sub)
+        for i, sub in enumerate(kept, 1):
+            sub.index = i
 
         output_io = io.StringIO()
-        subs.write_into(output_io)
+        pysrt.SubRipFile(items=kept).write_into(output_io)
         return PlainTextResponse(
             content=output_io.getvalue(),
             media_type="text/plain",
