@@ -49,21 +49,6 @@ function proxyDownload(backendUrl, res) {
     });
 }
 
-// Whisper 本地模型 / 依赖就绪状态
-app.get('/api/whisper-status', (req, res) => {
-    http.get('http://127.0.0.1:8000/whisper_status', (backendRes) => {
-        let body = '';
-        backendRes.on('data', (chunk) => { body += chunk; });
-        backendRes.on('end', () => {
-            res.status(backendRes.statusCode || 502);
-            res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            res.end(body || '{}');
-        });
-    }).on('error', (e) => {
-        res.status(502).json({ ready: false, message: '后端未启动', details: [e.message] });
-    });
-});
-
 // 下载 YouTube 原视频（可选功能，后端默认关闭）
 app.get('/api/download-youtube-video', (req, res) => {
     const url = req.query.url;
@@ -90,9 +75,7 @@ app.get('/api/translate-youtube', (req, res) => {
     if (!url) {
         return res.status(400).json({ error: 'url query parameter is required' });
     }
-    const useWhisper = req.query.use_whisper === 'true' ? 'true' : 'false';
-    const whisperForce = req.query.whisper_force === 'true' ? 'true' : 'false';
-    const backendUrl = `http://127.0.0.1:8000/stream_translate_youtube?url=${encodeURIComponent(url)}&use_whisper=${useWhisper}&whisper_force=${whisperForce}`;
+    const backendUrl = `http://127.0.0.1:8000/stream_translate_youtube?url=${encodeURIComponent(url)}`;
     proxySSE(backendUrl, res);
 });
 
@@ -102,9 +85,7 @@ app.get('/api/translate-youtube-srt', (req, res) => {
     if (!url) {
         return res.status(400).json({ error: 'url query parameter is required' });
     }
-    const useWhisper = req.query.use_whisper === 'true' ? 'true' : 'false';
-    const whisperForce = req.query.whisper_force === 'true' ? 'true' : 'false';
-    const backendUrl = `http://127.0.0.1:8000/stream_translate_youtube_srt?url=${encodeURIComponent(url)}&use_whisper=${useWhisper}&whisper_force=${whisperForce}`;
+    const backendUrl = `http://127.0.0.1:8000/stream_translate_youtube_srt?url=${encodeURIComponent(url)}`;
     proxySSE(backendUrl, res);
 });
 

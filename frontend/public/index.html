@@ -242,20 +242,7 @@
 
         <p>▶️ 或者粘贴 YouTube 链接，自动抓取字幕并翻译：</p>
         <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom: 12px;">
-        
-        <label class="checkbox-label">
-            <input type="checkbox" id="whisperFallback" onchange="refreshWhisperStatus()">
-            无 YouTube 字幕时用 Whisper 听写（有 CC 时仍优先用官方字幕，推荐）
-        </label>
-        <label class="checkbox-label secondary">
-            <input type="checkbox" id="whisperForce">
-            强制仅用 Whisper（不推荐，质量通常不如 YouTube 字幕）
-        </label>
-        
-        <div id="whisperStatusBox" class="status-box">
-            正在检查 Whisper 配置…
-        </div>
-        
+
         <div class="btn-row">
             <button id="youtubeBtn" onclick="startYoutubeTranslation()" class="btn-red">页面预览翻译</button>
             <button id="youtubeSrtBtn" onclick="downloadYoutubeSrt()" class="btn-purple">下载翻译字幕 (SRT)</button>
@@ -289,48 +276,6 @@
     </div>
 
     <script>
-        function youtubeWhisperParams() {
-            const force = document.getElementById('whisperForce').checked;
-            const fallback = document.getElementById('whisperFallback').checked;
-            return {
-                use_whisper: (fallback || force) ? 'true' : 'false',
-                whisper_force: force ? 'true' : 'false',
-            };
-        }
-
-        document.getElementById('whisperForce').addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById('whisperFallback').checked = true;
-            }
-            refreshWhisperStatus();
-        });
-
-        async function refreshWhisperStatus() {
-            const box = document.getElementById('whisperStatusBox');
-            try {
-                const res = await fetch('/api/whisper-status');
-                const data = await res.json();
-                const color = data.ready ? '#1e8449' : '#c0392b';
-                let html = '<strong style="color:' + color + '">' + (data.message || '未知状态') + '</strong>';
-                if (data.model_path) {
-                    html += '<br><span style="font-size:12px">路径：' + data.model_path + '</span>';
-                }
-                if (data.missing_files && data.missing_files.length) {
-                    html += '<br><span style="font-size:12px">缺少：' + data.missing_files.join(', ') + '</span>';
-                }
-                if (data.details && data.details.length) {
-                    html += '<ul style="margin:6px 0 0 18px;padding:0;font-size:12px">';
-                    data.details.forEach(function(line) {
-                        html += '<li>' + line + '</li>';
-                    });
-                    html += '</ul>';
-                }
-                box.innerHTML = html;
-            } catch (e) {
-                box.innerHTML = '<span style="color:#c0392b">无法连接后端检查 Whisper 配置</span>';
-            }
-        }
-
         // 思考过程开关：默认隐藏，只显示干净译文
         function toggleThoughts() {
             const show = document.getElementById('showThoughts').checked;
@@ -407,17 +352,8 @@
                 alert("请先粘贴一个 YouTube 链接！");
                 return;
             }
-            const wp = youtubeWhisperParams();
-            if (wp.use_whisper === 'true') {
-                const st = await fetch('/api/whisper-status').then(r => r.json()).catch(() => ({}));
-                if (!st.ready) {
-                    alert('Whisper 尚未就绪：\n' + (st.message || '') + '\n\n请按页面下方说明配置 .env 中的 WHISPER_MODEL_PATH');
-                    return;
-                }
-            }
             const btn = document.getElementById('youtubeBtn');
-            const query = `url=${encodeURIComponent(url)}&use_whisper=${wp.use_whisper}&whisper_force=${wp.whisper_force}`;
-            consumeStream(`/api/translate-youtube?${query}`, btn);
+            consumeStream(`/api/translate-youtube?url=${encodeURIComponent(url)}`, btn);
         }
 
         // 模式二：下载带时间轴的翻译 SRT（流式进度 + 可选 Agent 思考过程）
@@ -427,28 +363,14 @@
                 alert("请先粘贴一个 YouTube 链接！");
                 return;
             }
-            const wp = youtubeWhisperParams();
-            if (wp.use_whisper === 'true') {
-                const st = await fetch('/api/whisper-status').then(r => r.json()).catch(() => ({}));
-                if (!st.ready) {
-                    alert('Whisper 尚未就绪：\n' + (st.message || '') + '\n\n请按页面下方说明配置 .env 中的 WHISPER_MODEL_PATH');
-                    return;
-                }
-            }
             const btn = document.getElementById('youtubeSrtBtn');
             const status = document.getElementById('youtubeSrtStatus');
             const resultBox = document.getElementById('resultBox');
-            const query = `url=${encodeURIComponent(url)}&use_whisper=${wp.use_whisper}&whisper_force=${wp.whisper_force}`;
 
-            const forceOnly = wp.whisper_force === 'true';
-            status.textContent = forceOnly ? "准备中（强制 Whisper）…" : (wp.use_whisper === 'true' ? "准备中（优先 YouTube 字幕）…" : "准备中…");
-            resultBox.textContent = forceOnly
-                ? "强制 Whisper：将下载音频并听写，质量可能不如官方字幕，请稍候…\n"
-                : (wp.use_whisper === 'true'
-                    ? "优先抓取 YouTube 字幕；若无字幕再 Whisper，请稍候…\n"
-                    : "正在生成 SRT 字幕，请稍候…\n");
+            status.textContent = "准备中…";
+            resultBox.textContent = "正在生成 SRT 字幕，请稍候…\n";
 
-            consumeStream(`/api/translate-youtube-srt?${query}`, btn, {
+            consumeStream(`/api/translate-youtube-srt?url=${encodeURIComponent(url)}`, btn, {
                 keepResult: true,
                 onProgress: function(data) {
                     const msg = data.message || (`${data.done}/${data.total}`);
@@ -576,8 +498,6 @@
                 btn.disabled = false;
             }
         }
-
-        refreshWhisperStatus();
     </script>
 </body>
 </html>

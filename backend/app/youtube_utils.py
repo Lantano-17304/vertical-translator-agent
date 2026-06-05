@@ -349,17 +349,11 @@ def _fetch_with_ytdlp(video_id: str) -> list[dict]:
     return snippets
 
 
-def fetch_transcript(video_id: str, use_whisper: bool = False) -> list[dict]:
+def fetch_transcript(video_id: str) -> list[dict]:
     """抓取字幕，返回 [{"text": ..., "start": ...}, ...]。
 
-    use_whisper=False（默认）：youtube-transcript-api，失败则 yt-dlp 字幕轨道。
-    use_whisper=True（页面手动开启）：跳过字幕轨道，直接用 faster-whisper 转写音频。
-  """
-    if use_whisper:
-        from app.whisper_utils import transcribe_youtube_audio
-
-        return transcribe_youtube_audio(video_id)
-
+    优先 youtube-transcript-api，失败则回退 yt-dlp 字幕轨道。
+    """
     try:
         return _fetch_with_transcript_api(video_id)
     except Exception as primary_error:

@@ -4,7 +4,6 @@ import json
 import os
 import tempfile
 import asyncio
-import threading
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -26,7 +25,6 @@ from app.youtube_utils import (
     format_video_context,
     download_video_file,
 )
-from app.whisper_utils import check_whisper_setup
 from urllib.parse import quote
 
 app = FastAPI(title="Translator Agent API")
@@ -36,6 +34,17 @@ YOUTUBE_TRANSLATE_CHUNK_CHARS = int(os.environ.get("YOUTUBE_TRANSLATE_CHUNK_CHAR
 
 # 生成 SRT / 批量翻译文件时，一次交给 Agent 多少行字幕（保持行与时间轴一一对应）。
 TRANSLATE_BATCH_SIZE = int(os.environ.get("TRANSLATE_BATCH_SIZE", "20"))
+
+# 导出 SRT 时：超长字幕按句末标点拆条，并在「本条开始 ~ 下一条开始」间按字数比例分配时间。
+SRT_SPLIT_LONG_CUES = os.environ.get("SRT_SPLIT_LONG_CUES", "1").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+SRT_SPLIT_MIN_CHARS = int(os.environ.get("SRT_SPLIT_MIN_CHARS", "30"))
+SRT_SPLIT_MIN_GAP_SEC = float(os.environ.get("SRT_SPLIT_MIN_GAP_SEC", "1.5"))
+SRT_SPLIT_MIN_PART_DURATION = float(os.environ.get("SRT_SPLIT_MIN_PART_DURATION", "0.8"))
 
 # 可选：是否允许下载 YouTube 原视频（默认关闭，避免误用与资源占用）
 ENABLE_YOUTUBE_VIDEO_DOWNLOAD = os.environ.get("ENABLE_YOUTUBE_VIDEO_DOWNLOAD", "0").strip().lower() in {
@@ -324,79 +333,14 @@ def _context_thought(video_context: str) -> str:
     return f"\n【视频背景】已注入翻译上下文：\n{preview}\n\n"
 
 
-async def _fetch_youtube_payload(url: str, use_whisper: bool = False) -> tuple[str, list[dict], str, dict]:
+async def _fetch_youtube_payload(url: str) -> tuple[str, list[dict], str, dict]:
     """并行抓取字幕与视频背景，返回 (video_id, snippets, formatted_context, raw_context)。"""
     video_id = extract_video_id(url)
     snippets, ctx = await asyncio.gather(
-        asyncio.to_thread(fetch_transcript, video_id, use_whisper),
+        asyncio.to_thread(fetch_transcript, video_id),
         asyncio.to_thread(fetch_video_context, video_id),
     )
     return video_id, snippets, format_video_context(ctx), ctx
-
-
-async def _stream_youtube_payload(
-    url: str,
-    use_whisper: bool = False,
-    whisper_force: bool = False,
-):
-    """流式抓取：先 yield status 进度，最后 yield payload。
-
-    use_whisper + 非 force：优先 YouTube 字幕（质量更好），失败再走 Whisper。
-    whisper_force：始终 Whisper，忽略 YouTube 字幕轨道。
-    """
-    video_id = extract_video_id(url)
-
-    if not use_whisper:
-        snippets, ctx = await asyncio.gather(
-            asyncio.to_thread(fetch_transcript, video_id, False),
-            asyncio.to_thread(fetch_video_context, video_id),
-        )
-        yield "payload", (video_id, snippets, format_video_context(ctx), ctx)
-        return
-
-    from app.whisper_utils import transcribe_youtube_audio
-
-    queue: asyncio.Queue = asyncio.Queue()
-    loop = asyncio.get_running_loop()
-
-    def progress(msg: str) -> None:
-        loop.call_soon_threadsafe(queue.put_nowait, ("status", msg))
-
-    def work() -> None:
-        try:
-            ctx = fetch_video_context(video_id)
-            if not whisper_force:
-                try:
-                    snippets = fetch_transcript(video_id, use_whisper=False)
-                    if snippets:
-                        progress(
-                            f"【字幕】已使用 YouTube 字幕（{len(snippets)} 条），"
-                            "翻译质量通常优于 Whisper 听写"
-                        )
-                        loop.call_soon_threadsafe(
-                            queue.put_nowait, ("done", (snippets, ctx))
-                        )
-                        return
-                except Exception as exc:
-                    progress(f"【字幕】无法获取 YouTube 字幕，改用 Whisper：{exc}")
-
-            snippets = transcribe_youtube_audio(video_id, progress_cb=progress)
-            loop.call_soon_threadsafe(queue.put_nowait, ("done", (snippets, ctx)))
-        except Exception as exc:  # noqa: BLE001  - 转发给主协程统一处理
-            loop.call_soon_threadsafe(queue.put_nowait, ("error", exc))
-
-    threading.Thread(target=work, daemon=True).start()
-
-    while True:
-        kind, data = await queue.get()
-        if kind == "status":
-            yield "status", data
-        elif kind == "error":
-            raise data
-        elif kind == "done":
-            snippets, ctx = data
-            yield "payload", (video_id, snippets, format_video_context(ctx), ctx)
-            return
 
 
 def _domain_thought(raw_ctx: dict) -> str:
@@ -406,30 +350,62 @@ def _domain_thought(raw_ctx: dict) -> str:
 
 # ------------------------- SRT 生成 -------------------------
 
-def _format_srt_time(seconds: float) -> str:
-    """秒 -> SRT 时间戳 HH:MM:SS,mmm。"""
-    if seconds < 0:
-        seconds = 0.0
-    total_ms = int(round(seconds * 1000))
-    hours, total_ms = divmod(total_ms, 3_600_000)
-    minutes, total_ms = divmod(total_ms, 60_000)
-    secs, millis = divmod(total_ms, 1000)
-    return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+# 在句末标点后切分（保留标点在前一段末尾）
+_SRT_PUNCT_SPLIT_RE = re.compile(r"(?<=[。！？!?…])")
 
 
-def _build_srt(snippets: list[dict], translations: list[str]) -> str:
-    """用原字幕的时间轴 + 译文拼出标准 SRT 文本。
+def _split_text_by_punctuation(text: str) -> list[str]:
+    """按句末标点拆成多条字幕文案；无标点时返回整段。"""
+    text = (text or "").strip()
+    if not text:
+        return []
+    parts = [p.strip() for p in _SRT_PUNCT_SPLIT_RE.split(text) if p.strip()]
+    return parts if parts else [text]
 
-    YouTube 滚动字幕片段常有重叠；导出前把每条结束时间截到下一条开始之前，
-    避免标准播放器出现双线交替/叠显。
-    译文与源文本均为空白的条目会跳过（B 站等平台不接受空字幕块）。
-    """
+
+def _allocate_times_by_char_weight(
+    start: float,
+    end: float,
+    weights: list[int],
+    min_part: float,
+) -> list[tuple[float, float]]:
+    """在 [start, end] 内按权重（通常为每段字数）分配子时间轴。"""
+    n = len(weights)
+    if n == 0:
+        return []
+    if n == 1:
+        return [(start, end)]
+
+    span = end - start
+    if span <= 0:
+        span = min_part * n
+        end = start + span
+
+    wsum = sum(max(1, w) for w in weights)
+    durations = [span * (max(1, w) / wsum) for w in weights]
+
+    # 保证每段不低于最短显示时长，再按比例缩放回总 span
+    durations = [max(min_part, d) for d in durations]
+    total = sum(durations)
+    if total > span:
+        scale = span / total
+        durations = [d * scale for d in durations]
+
+    windows: list[tuple[float, float]] = []
+    cursor = start
+    for i, dur in enumerate(durations):
+        if i == n - 1:
+            windows.append((cursor, end))
+        else:
+            part_end = cursor + dur
+            windows.append((cursor, part_end))
+            cursor = part_end
+    return windows
+
+
+def _compute_snippet_times(snippets: list[dict], min_duration: float = 0.1) -> list[tuple[float, float]]:
+    """根据 YouTube 片段计算每条的起止时间，并截断与下一条的重叠。"""
     count = len(snippets)
-    if count == 0:
-        return ""
-
-    min_duration = 0.1  # 去重叠后仍保证最短显示时长(秒)
-
     times: list[tuple[float, float]] = []
     for i, snip in enumerate(snippets):
         start = float(snip.get("start") or 0.0)
@@ -452,17 +428,84 @@ def _build_srt(snippets: list[dict], translations: list[str]) -> str:
         if end_i <= start_i:
             end_i = start_i + min_duration
         times[i] = (start_i, end_i)
+    return times
+
+
+def _expand_split_cues(
+    times: list[tuple[float, float]],
+    translations: list[str],
+    snippets: list[dict],
+) -> list[tuple[float, float, str]]:
+    """将超长字幕按标点拆条，并把时间铺到「下一条开始」前的空隙里。"""
+    count = len(times)
+    expanded: list[tuple[float, float, str]] = []
+
+    for i in range(count):
+        start, end = times[i]
+        text = (translations[i] or "").strip()
+        if not text:
+            text = str(snippets[i].get("text", "")).strip()
+        if not text:
+            continue
+
+        if not SRT_SPLIT_LONG_CUES or len(text) < SRT_SPLIT_MIN_CHARS:
+            expanded.append((start, end, text))
+            continue
+
+        parts = _split_text_by_punctuation(text)
+        if len(parts) < 2:
+            expanded.append((start, end, text))
+            continue
+
+        if i + 1 < count:
+            next_start = times[i + 1][0]
+            gap = next_start - end
+            alloc_end = next_start if gap >= SRT_SPLIT_MIN_GAP_SEC else end
+        else:
+            alloc_end = end
+
+        if alloc_end <= start:
+            alloc_end = start + SRT_SPLIT_MIN_PART_DURATION * len(parts)
+
+        windows = _allocate_times_by_char_weight(
+            start,
+            alloc_end,
+            [len(p) for p in parts],
+            SRT_SPLIT_MIN_PART_DURATION,
+        )
+        for (ws, we), part in zip(windows, parts):
+            expanded.append((ws, we, part))
+
+    return expanded
+
+
+def _format_srt_time(seconds: float) -> str:
+    """秒 -> SRT 时间戳 HH:MM:SS,mmm。"""
+    if seconds < 0:
+        seconds = 0.0
+    total_ms = int(round(seconds * 1000))
+    hours, total_ms = divmod(total_ms, 3_600_000)
+    minutes, total_ms = divmod(total_ms, 60_000)
+    secs, millis = divmod(total_ms, 1000)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+
+
+def _build_srt(snippets: list[dict], translations: list[str]) -> str:
+    """用原字幕的时间轴 + 译文拼出标准 SRT 文本。
+
+    YouTube 滚动字幕片段常有重叠；导出前把每条结束时间截到下一条开始之前，
+    避免标准播放器出现双线交替/叠显。
+    超长译文可按句末标点拆条，并在到下一条字幕开始前的空隙内按字数比例分配时间。
+    译文与源文本均为空白的条目会跳过（B 站等平台不接受空字幕块）。
+    """
+    if not snippets:
+        return ""
+
+    times = _compute_snippet_times(snippets)
+    cues = _expand_split_cues(times, translations, snippets)
 
     blocks: list[str] = []
-    seq = 0
-    for i, ((start, end), text) in enumerate(zip(times, translations)):
-        line = (text or "").strip()
-        if not line:
-            # 翻译失败或源片段无内容时不输出，避免 B 站等平台拒收“空字幕条”
-            line = str(snippets[i].get("text", "")).strip()
-        if not line:
-            continue
-        seq += 1
+    for seq, (start, end, line) in enumerate(cues, start=1):
         blocks.append(
             f"{seq}\n{_format_srt_time(start)} --> {_format_srt_time(end)}\n{line}\n"
         )
@@ -523,11 +566,6 @@ def read_root():
     return {"message": "Hello from Python Backend"}
 
 
-@app.get("/whisper_status")
-def whisper_status():
-    """Whisper 可选功能是否就绪（供前端展示配置说明）。"""
-    return check_whisper_setup()
-
 @app.get("/stream_translate")
 async def stream_translate(text: str):
     """挂载了 LangChain Agent 和 RAG 检索的单句流式翻译接口。"""
@@ -544,32 +582,15 @@ async def stream_translate(text: str):
 
 
 @app.get("/stream_translate_youtube")
-async def stream_translate_youtube(url: str, use_whisper: bool = False, whisper_force: bool = False):
+async def stream_translate_youtube(url: str):
     """输入 YouTube 链接 -> 抓取字幕 -> 调用领域 Agent 流式翻译。"""
     async def event_generator():
         try:
             yield _thought("【YouTube】正在解析链接，并行抓取字幕与视频背景...\n")
-            if whisper_force:
-                yield _thought(
-                    "【Whisper】强制模式：忽略 YouTube 字幕，仅本地听写（质量可能较差）。\n"
-                )
-            elif use_whisper:
-                yield _thought(
-                    "【Whisper】智能模式：优先使用 YouTube 字幕；仅在没有字幕时才本地听写。\n"
-                )
-            payload = None
-            async for kind, data in _stream_youtube_payload(url, use_whisper, whisper_force):
-                if kind == "status":
-                    yield _thought(f"\n{data}\n")
-                else:
-                    payload = data
-            video_id, snippets, video_context, raw_ctx = payload
+            video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url)
 
             if not snippets:
-                yield _thought(
-                    "\n【YouTube】未获得可用文本。"
-                    + ("（Whisper 识别结果为空）" if use_whisper else "（未找到该视频的字幕）")
-                )
+                yield _thought("\n【YouTube】未获得可用文本。（未找到该视频的字幕）")
                 yield "data: [DONE]\n\n"
                 return
 
@@ -607,22 +628,13 @@ async def stream_translate_youtube(url: str, use_whisper: bool = False, whisper_
 
 
 @app.get("/download_translated_srt")
-async def download_translated_srt(url: str, use_whisper: bool = False, whisper_force: bool = False):
+async def download_translated_srt(url: str):
     """输入 YouTube 链接 -> 抓字幕(含时间轴) -> 批量翻译 -> 返回可下载的 .srt 文件。
 
     供脚本/直连下载；网页请用 /stream_translate_youtube_srt 以获取进度与思考过程。
     """
     try:
-        if use_whisper:
-            payload = None
-            async for kind, data in _stream_youtube_payload(url, use_whisper, whisper_force):
-                if kind == "status":
-                    pass
-                else:
-                    payload = data
-            video_id, snippets, video_context, raw_ctx = payload
-        else:
-            video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url, False)
+        video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url)
     except Exception as e:
         return PlainTextResponse(
             f"抓取字幕失败：{type(e).__name__}: {e}\n"
@@ -699,33 +711,15 @@ async def download_youtube_video(url: str, background: BackgroundTasks):
 
 
 @app.get("/stream_translate_youtube_srt")
-async def stream_translate_youtube_srt(url: str, use_whisper: bool = False, whisper_force: bool = False):
+async def stream_translate_youtube_srt(url: str):
     """YouTube 链接 -> 流式翻译并导出 SRT（推送进度 + Agent 思考过程，结束时下发文件内容）。"""
     async def event_generator():
         try:
             yield _thought("【SRT 导出】正在解析链接，并行抓取字幕与视频背景...\n")
-            if whisper_force:
-                yield _thought(
-                    "【Whisper】强制模式：忽略 YouTube 字幕，仅本地听写（质量可能较差）。\n"
-                )
-            elif use_whisper:
-                yield _thought(
-                    "【Whisper】智能模式：优先使用 YouTube 字幕；仅在没有字幕时才本地听写。\n"
-                )
-            payload = None
-            async for kind, data in _stream_youtube_payload(url, use_whisper, whisper_force):
-                if kind == "status":
-                    yield _progress(0, 0, data)
-                    yield _thought(f"\n{data}\n")
-                else:
-                    payload = data
-            video_id, snippets, video_context, raw_ctx = payload
+            video_id, snippets, video_context, raw_ctx = await _fetch_youtube_payload(url)
 
             if not snippets:
-                yield _thought(
-                    "\n【SRT 导出】未获得可用文本。"
-                    + ("（Whisper 识别结果为空）\n" if use_whisper else "（未找到该视频的字幕）\n")
-                )
+                yield _thought("\n【SRT 导出】未获得可用文本。（未找到该视频的字幕）\n")
                 yield "data: [DONE]\n\n"
                 return
 
