@@ -26,6 +26,10 @@ whisper_models/
 *.cookies.txt
 cookies.txt
 
+# --- Local-only docs (not pushed to GitHub) ---
+docs/BLOG.md
+docs/GITHUB.md
+
 # --- Eval outputs (regenerate with eval/llm_judge.py) ---
 eval/llm_judge_results.json
 

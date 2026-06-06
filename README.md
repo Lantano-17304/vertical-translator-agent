@@ -38,7 +38,7 @@
 ├── eval/llm_judge.py
 ├── docs/
 │   ├── architecture.md            # 架构与 API
-│   └── GITHUB.md                  # Git 推送说明
+│   └── REPORT.md                  # 项目报告
 ├── scripts/
 ├── start.bat / start.ps1 / start.sh
 └── .env.example
@@ -178,7 +178,7 @@ backend\.venv\Scripts\python eval\llm_judge.py --limit 2
 
 ## Git / GitHub 交付
 
-尚未初始化 Git 时，见 [docs/GITHUB.md](docs/GITHUB.md)。勿推送 `.env`、`backend/.venv`、`node_modules`、`chroma_data/` 等。
+勿推送 `.env`、`backend/.venv`、`node_modules`、`chroma_data/` 等（见 `.gitignore`）。
 
 ## 后续优化
 
