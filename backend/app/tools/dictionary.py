@@ -39,6 +39,8 @@ def _load_domain_terms() -> list[tuple[str, dict]]:
         return items
 
     for path in sorted(TERMS_DIR.glob("*.json")):
+        if path.stem.startswith("_"):
+            continue
         domain = path.stem
         with path.open("r", encoding="utf-8") as f:
             terms = json.load(f)
@@ -50,10 +52,10 @@ def _load_domain_terms() -> list[tuple[str, dict]]:
     return items
 
 
-def _seed_dictionary() -> None:
+def _seed_dictionary() -> int:
     items = _load_domain_terms()
     if not items:
-        return
+        return 0
 
     collection.upsert(
         documents=[_term_to_document(term, domain) for domain, term in items],
@@ -70,12 +72,18 @@ def _seed_dictionary() -> None:
             for index, (domain, term) in enumerate(items, start=1)
         ],
     )
+    return len(items)
 
 
-def list_term_domains() -> list[str]:
-    if not TERMS_DIR.is_dir():
-        return []
-    return sorted(path.stem for path in TERMS_DIR.glob("*.json"))
+def reload_dictionary() -> int:
+    """清空并重新从 data/terms/*.json 注入向量库，返回词条数量。"""
+    global collection
+    try:
+        chroma_client.delete_collection(name="term_dictionary")
+    except Exception:
+        pass
+    collection = chroma_client.get_or_create_collection(name="term_dictionary")
+    return _seed_dictionary()
 
 
 @contextmanager
@@ -110,7 +118,9 @@ _seed_dictionary()
 
 @tool
 def search_term_dict(query: str) -> str:
-    """查询垂直领域专有名词、黑话、俗语的意思。当你不确定某个词的确切翻译时，必须调用它。参数是你要查询的名词。"""
+    """查询垂直领域专有名词、黑话、俗语的意思。
+    字幕来自 YouTube 自动语音识别时，错字/同音词很常见；若某词像 ASR 误听或读音相近的专名，也应调用本工具核实。
+    参数是你要查询的名词（可用字幕中的错字写法）。"""
     documents = _query_terms(query, n_results=4)
     if documents:
         return "\n".join(documents)

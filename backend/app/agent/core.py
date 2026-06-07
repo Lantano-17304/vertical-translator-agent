@@ -5,6 +5,8 @@ from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
 from app.tools.dictionary import search_term_dict
+from app.tools.wiki_lookup import lookup_wiki
+from app.translation_prompts import AGENT_ASR_SYSTEM_RULES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 load_dotenv(PROJECT_ROOT / ".env")
@@ -30,14 +32,18 @@ def get_agent_executor():
     )
 
     # 给大模型装配上“武器”
-    tools = [search_term_dict]
+    tools = [search_term_dict, lookup_wiki]
 
     # ReAct / Tool Calling Prompt，教大模型如何思考
     prompt = ChatPromptTemplate.from_messages([
         ("system", "你是一个精通垂直领域的智能翻译 Agent。你的任务是将用户的外语（通常是日语）翻译成地道、专业的中文。\n"
                    "【规则】\n"
-                   "1. 遇到疑难名词、领域黑话、专有术语等，你*必须*调用 search_term_dict 工具进行检索确认。\n"
-                   "2. 不要生硬机翻，结合工具查到的意思，输出信达雅的最终翻译翻译结果。"),
+                   "1. 若用户消息中含「专名术语表」，表中词条必须按推荐译法处理，禁止意译为日常含义。\n"
+                   "2. 遇到术语表未覆盖的疑难名词、领域黑话、专有术语，先调用 search_term_dict 工具检索本地术语库。\n"
+                   "3. 若本地术语库返回「未找到」，或需核实 VTuber/游戏/ACG 专名译名与背景，再调用 lookup_wiki 查询萌娘百科/维基百科。\n"
+                   "4. 工具仅在后台使用，最终面向用户的输出只能是翻译结果本身；禁止出现「查一下」「萌娘百科」「维基」等过程描述。\n"
+                   "5. 禁止「原文→译文」对照格式；不要生硬机翻，结合术语表与工具查到的意思输出信达雅的中文；禁止编造组织归属或人名。\n"
+                   f"{AGENT_ASR_SYSTEM_RULES}"),
         ("placeholder", "{chat_history}"),
         ("user", "{input}"),
         ("placeholder", "{agent_scratchpad}"),

@@ -32,6 +32,7 @@ docs/GITHUB.md
 
 # --- Eval outputs (regenerate with eval/llm_judge.py) ---
 eval/llm_judge_results.json
+scripts/srt_compare_report.json
 
 # --- Editor / OS ---
 .DS_Store

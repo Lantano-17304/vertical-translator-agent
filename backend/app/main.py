@@ -17,7 +17,20 @@ from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
 from fastapi.responses import StreamingResponse, PlainTextResponse, FileResponse
 from app.agent.core import agent_executor
 from app.term_domains import infer_term_domains, format_domain_selection
-from app.tools.dictionary import term_domains_scope
+from app.term_glossary import (
+    build_session_glossary,
+    collect_session_glossary_hits,
+    format_glossary_thought,
+)
+from app.tools.dictionary import term_domains_scope, reload_dictionary
+from app.translation_prompts import ASR_AWARE_RULES
+from app.translation_sanitize import (
+    finalize_translation_line as _finalize_translation_line,
+    line_has_japanese as _line_has_japanese,
+    needs_retranslation as _needs_retranslation,
+    normalize_translation_line as _normalize_translation_line,
+    strip_thinking_markers as _strip_thinking_markers,
+)
 from app.youtube_utils import (
     extract_video_id,
     fetch_transcript,
@@ -34,6 +47,9 @@ YOUTUBE_TRANSLATE_CHUNK_CHARS = int(os.environ.get("YOUTUBE_TRANSLATE_CHUNK_CHAR
 
 # 生成 SRT / 批量翻译文件时，一次交给 Agent 多少行字幕（保持行与时间轴一一对应）。
 TRANSLATE_BATCH_SIZE = int(os.environ.get("TRANSLATE_BATCH_SIZE", "20"))
+
+# 漏译检测后的逐行补译重试次数
+TRANSLATE_RETRY_MAX = int(os.environ.get("TRANSLATE_RETRY_MAX", "2"))
 
 # 导出 SRT 时：超长字幕按句末标点拆条，并在「本条开始 ~ 下一条开始」间按字数比例分配时间。
 SRT_SPLIT_LONG_CUES = os.environ.get("SRT_SPLIT_LONG_CUES", "1").strip().lower() in {
@@ -81,10 +97,10 @@ def _srt_ready(filename: str, content: str) -> str:
 # 匹配模型返回的 “[3] 译文” 这种带行号的行
 _NUMBERED_LINE_RE = re.compile(r"^\s*[\[【]\s*(\d+)\s*[\]】]\s?(.*)$")
 
-# 模型“思考链”常见包裹标记（DeepSeek / R1 等）
-_THINKING_BLOCK_RE = re.compile(
-    r"``|``|\[think\].*?\[/think\]",
-    re.DOTALL | re.IGNORECASE,
+_SUBTITLE_OUTPUT_RULES = (
+    "5. 工具调用在后台完成，最终输出中禁止出现「查一下」「萌娘百科」「维基」「术语库」等过程描述；\n"
+    "6. 禁止「原文→译文」对照格式，只输出单行中文字幕；\n"
+    "7. 禁止保留日文假名，语气词也要译成中文。"
 )
 
 
@@ -102,54 +118,6 @@ def _chunk_text_content(chunk) -> str:
                 parts.append(str(block.get("text") or ""))
         return "".join(parts)
     return ""
-
-
-def _strip_thinking_markers(text: str) -> str:
-    """去掉模型推理块，避免思考内容进入 SRT。"""
-    if not text:
-        return ""
-    cleaned = _THINKING_BLOCK_RE.sub("", text)
-    return cleaned.strip()
-
-
-_LEADING_JUNK_RE = re.compile(
-    r"^\s*(?:[-*#>\s]*)(?:翻译(?:结果)?[:：]|译文[:：]|参考翻译[:：])\s*",
-    re.IGNORECASE,
-)
-
-
-def _normalize_translation_line(text: str) -> str:
-    """把模型输出收敛成“单行译文”，用于 SRT/TXT 逐行翻译兜底。
-
-    兜底场景下模型偶尔会输出解释/分段/Markdown；这里做保守清洗：
-    - 去掉 <think> 块
-    - 丢弃明显是“说明/分隔符”的行
-    - 优先取最后一条像译文的非空行
-    """
-    cleaned = _strip_thinking_markers(text or "")
-    if not cleaned:
-        return ""
-
-    lines = [ln.strip() for ln in cleaned.splitlines() if ln.strip()]
-    if not lines:
-        return ""
-
-    def is_noise(line: str) -> bool:
-        if line in {"---", "—", "——"}:
-            return True
-        if line.startswith(("【", "（", "(", "注：", "说明", "意译", "直译", "结合")):
-            return True
-        if "翻译说明" in line or "意译说明" in line:
-            return True
-        return False
-
-    candidates = [ln for ln in lines if not is_noise(ln)]
-    picked = (candidates[-1] if candidates else lines[-1]).strip()
-    picked = picked.lstrip("> ").strip()
-    picked = _LEADING_JUNK_RE.sub("", picked).strip()
-    # 去掉常见加粗/引用符号
-    picked = picked.strip("*").strip()
-    return picked
 
 
 def _normalize_agent_output(text: str) -> str:
@@ -175,6 +143,31 @@ def _parse_numbered(output: str, expected: int) -> list[str] | None:
     return result
 
 
+def _join_rolling_translation(prev_trans: str, suffix_trans: str) -> str:
+    """拼接滚动字幕：已译前缀 + 新译后缀。"""
+    left = (prev_trans or "").strip()
+    right = (suffix_trans or "").strip()
+    if not left:
+        return right
+    if not right:
+        return left
+    if left.endswith(("、", "，", "。", "！", "？", "…", "—", "-", "：", ":")):
+        return left + right
+    return left + right
+
+
+def _tool_start_thought(tool_name: str) -> str:
+    if tool_name == "lookup_wiki":
+        return f"\n【动作】本地术语库未覆盖，调用 Wiki 查询 [{tool_name}]...\n"
+    return f"\n【动作】调用术语工具 [{tool_name}] 检索本地词典...\n"
+
+
+def _tool_end_thought(tool_name: str) -> str:
+    if tool_name == "lookup_wiki":
+        return "\n【Wiki】在线查询完成，已将条目摘要交给翻译 Agent。\n\n"
+    return "\n【RAG】术语检索完成，已将相关术语作为上下文交给翻译 Agent。\n\n"
+
+
 async def _collect_agent_output(prompt: str):
     """运行 Agent 并流式产出思考过程帧，最终返回最后一轮 LLM 的译文 output。
 
@@ -187,9 +180,10 @@ async def _collect_agent_output(prompt: str):
         kind = event["event"]
         if kind == "on_tool_start":
             tool_name = event["name"]
-            yield _thought(f"\n【动作】可能存在生词，调用字典工具 [{tool_name}] 进行术语检索...\n"), None
+            yield _thought(_tool_start_thought(tool_name)), None
         elif kind == "on_tool_end":
-            yield _thought("\n【RAG】术语检索完成，已将相关术语作为上下文交给翻译 Agent。\n\n"), None
+            tool_name = event["name"]
+            yield _thought(_tool_end_thought(tool_name)), None
         elif kind == "on_chat_model_start":
             current_run_parts = []
         elif kind == "on_chat_model_stream":
@@ -202,64 +196,249 @@ async def _collect_agent_output(prompt: str):
     yield None, _normalize_agent_output(final_output)
 
 
-def _inject_video_context(video_context: str | None, text: str, task_hint: str) -> str:
-    """把视频背景拼进用户 prompt。"""
-    if not video_context:
-        return text
-    return f"{video_context}\n\n请结合以上视频背景，{task_hint}：\n{text}"
+def _inject_prompt_context(
+    body: str,
+    task_hint: str,
+    *,
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+) -> str:
+    """把视频背景与术语表拼进用户 prompt。"""
+    segments: list[str] = []
+    if video_context:
+        segments.append(video_context)
+        segments.append(f"请结合以上视频背景，{task_hint}：")
+    elif glossary_block:
+        segments.append(f"请{task_hint}：")
+    if glossary_block:
+        segments.append(glossary_block)
+    if segments:
+        return "\n\n".join(segments) + "\n\n" + body
+    return body
 
 
-def _batch_prompt(batch: list[str], video_context: str | None = None) -> str:
+def _batch_prompt(
+    batch: list[str],
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+) -> str:
     numbered = "\n".join(f"[{i + 1}] {line}" for i, line in enumerate(batch))
     body = (
+        f"{ASR_AWARE_RULES}\n\n"
         "下面是按行号排列的视频字幕，请逐行翻译成地道、口语化的中文。\n"
         "严格要求：\n"
         "1. 必须保留每行的 [序号] 前缀，且序号与原文对应；\n"
         "2. 输出行数必须和输入完全一致，禁止合并、拆分、新增或删除行；\n"
-        "3. 每行只输出该行译文，不要任何额外解释。\n\n"
+        "3. 每行只输出该行译文，不要任何额外解释；\n"
+        "4. 单行若明显是 ASR 错字，按推断出的真实语义译，勿照抄错字含义。\n"
+        f"{_SUBTITLE_OUTPUT_RULES}\n\n"
         f"{numbered}"
     )
-    return _inject_video_context(video_context, body, "翻译下列字幕行")
+    return _inject_prompt_context(
+        body,
+        "翻译下列字幕行",
+        video_context=video_context,
+        glossary_block=glossary_block,
+    )
 
 
-def _line_prompt(line: str, video_context: str | None = None) -> str:
+def _line_prompt(
+    line: str,
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+    *,
+    prev_line: str = "",
+    next_line: str = "",
+    strict: bool = False,
+) -> str:
+    context_lines = ""
+    if prev_line.strip() or next_line.strip():
+        context_lines = (
+            f"上一句字幕：{prev_line.strip() or '（无）'}\n"
+            f"下一句字幕：{next_line.strip() or '（无）'}\n\n"
+        )
     body = (
+        f"{ASR_AWARE_RULES}\n\n"
         "请将下列内容翻译成地道、口语化的中文。\n"
         "严格要求：\n"
         "1. 只输出译文本身（单行），不要任何解释、不要分点、不要 Markdown；\n"
         "2. 不要输出“翻译：/译文：/参考翻译：”等前缀；\n"
-        "3. 若原文不完整或缺上下文，也必须给出尽量贴近原意的一行译文，不要提问。\n\n"
-        f"{line}"
+        "3. 若原文不完整或缺上下文，也必须给出尽量贴近原意的一行译文，不要提问；\n"
+        "4. 必须输出中文，禁止保留日文假名原文；\n"
+        "5. 若本句明显是 ASR 错字，按推断出的真实语义译，勿照抄错字含义。\n"
+        f"{_SUBTITLE_OUTPUT_RULES}\n\n"
+        f"{context_lines}"
+        f"待翻译句：{line}"
     )
-    return _inject_video_context(video_context, body, "翻译以下内容")
+    if strict:
+        body += (
+            "\n\n【重要】上次输出含工具/查资料描述，已被丢弃。"
+            "请直接给出该行口语化中文字幕，禁止任何过程说明。"
+        )
+    return _inject_prompt_context(
+        body,
+        "翻译以下内容",
+        video_context=video_context,
+        glossary_block=glossary_block,
+    )
 
 
-def _preview_prompt(chunk: str, video_context: str | None = None) -> str:
-    return _inject_video_context(video_context, chunk, "理解并翻译以下字幕内容")
+async def _translate_single_line(
+    line: str,
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+    *,
+    prev_line: str = "",
+    next_line: str = "",
+    strict: bool = False,
+) -> str:
+    """逐行翻译（用于批量失败后的补译）。"""
+    prompt = _line_prompt(
+        line,
+        video_context,
+        glossary_block,
+        prev_line=prev_line,
+        next_line=next_line,
+        strict=strict,
+    )
+    result = await agent_executor.ainvoke({"input": prompt})
+    return _finalize_translation_line(str(result.get("output", "")))
 
 
-async def _translate_one_batch(batch: list[str], video_context: str | None = None) -> list[str]:
+async def _repair_translations(
+    lines: list[str],
+    translations: list[str],
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+) -> int:
+    """补译漏翻行：滚动字幕增量拼接 → 同文复用 → 邻句上下文逐行重试。"""
+    if len(lines) != len(translations):
+        return 0
+
+    repaired = 0
+
+    for i in range(1, len(lines)):
+        src = lines[i].strip()
+        if not _needs_retranslation(src, translations[i]):
+            continue
+        prev_src = lines[i - 1].strip()
+        prev_trans = (translations[i - 1] or "").strip()
+        if (
+            prev_src
+            and src.startswith(prev_src)
+            and prev_trans
+            and not _needs_retranslation(prev_src, prev_trans)
+        ):
+            suffix = src[len(prev_src) :].lstrip()
+            if not suffix:
+                translations[i] = prev_trans
+            else:
+                suffix_trans = await _translate_single_line(
+                    suffix, video_context, glossary_block
+                )
+                translations[i] = _join_rolling_translation(prev_trans, suffix_trans)
+            if not _needs_retranslation(src, translations[i]):
+                repaired += 1
+                continue
+
+    cache: dict[str, str] = {}
+    for src, trans in zip(lines, translations):
+        key = src.strip()
+        if key and not _needs_retranslation(key, trans):
+            cache[key] = trans
+
+    for i, (src, trans) in enumerate(zip(lines, translations)):
+        key = src.strip()
+        if not key or not _needs_retranslation(key, trans):
+            continue
+        if key in cache:
+            translations[i] = cache[key]
+            repaired += 1
+
+    for i, (src, trans) in enumerate(zip(lines, translations)):
+        if not _needs_retranslation(src, trans):
+            continue
+        prev_line = lines[i - 1] if i > 0 else ""
+        next_line = lines[i + 1] if i + 1 < len(lines) else ""
+        for _ in range(TRANSLATE_RETRY_MAX):
+            fixed = await _translate_single_line(
+                src,
+                video_context,
+                glossary_block,
+                prev_line=prev_line,
+                next_line=next_line,
+                strict=True,
+            )
+            if not _needs_retranslation(src, fixed):
+                translations[i] = fixed
+                repaired += 1
+                cache[src.strip()] = fixed
+                break
+
+    return repaired
+
+
+def _preview_prompt(
+    chunk: str,
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+) -> str:
+    body = (
+        f"{ASR_AWARE_RULES}\n\n"
+        "以下为连续字幕原文。请理解说话人实际想表达的内容，"
+        "按口语化中文输出译文（可分段，保持自然断句）：\n\n"
+        f"{chunk}"
+    )
+    return _inject_prompt_context(
+        body,
+        "理解并翻译以下字幕内容",
+        video_context=video_context,
+        glossary_block=glossary_block,
+    )
+
+
+async def _translate_one_batch(
+    batch: list[str],
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+) -> list[str]:
     """翻译一批字幕行，返回与输入一一对应的译文列表。
 
     优先用“带行号一次性翻译”省调用；若模型乱删/合并行导致行数对不上，
     自动降级为逐行翻译，保证时间轴对齐绝不串行。
     """
-    prompt = _batch_prompt(batch, video_context)
+    prompt = _batch_prompt(batch, video_context, glossary_block)
     result = await agent_executor.ainvoke({"input": prompt})
     parsed = _parse_numbered(_normalize_agent_output(str(result.get("output", ""))), len(batch))
-    if parsed is not None:
-        return parsed
+    outputs = (
+        [_finalize_translation_line(line) for line in parsed]
+        if parsed is not None
+        else None
+    )
 
-    fallback: list[str] = []
-    for line in batch:
-        single = await agent_executor.ainvoke({"input": _line_prompt(line, video_context)})
-        fallback.append(_normalize_translation_line(str(single.get("output", ""))))
-    return fallback
+    if outputs is None:
+        outputs = []
+        for line in batch:
+            single = await agent_executor.ainvoke(
+                {"input": _line_prompt(line, video_context, glossary_block)}
+            )
+            outputs.append(_finalize_translation_line(str(single.get("output", ""))))
+
+    for j, (src, out) in enumerate(zip(batch, outputs)):
+        if _needs_retranslation(src, out):
+            outputs[j] = await _translate_single_line(
+                src, video_context, glossary_block, strict=True
+            )
+    return outputs
 
 
-async def _translate_one_batch_streaming(batch: list[str], video_context: str | None = None):
+async def _translate_one_batch_streaming(
+    batch: list[str],
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+):
     """带思考过程流式输出的批量翻译；yield 思考帧，最终 yield (None, 译文列表)。"""
-    prompt = _batch_prompt(batch, video_context)
+    prompt = _batch_prompt(batch, video_context, glossary_block)
     full_output = ""
     async for frame, text in _collect_agent_output(prompt):
         if frame is not None:
@@ -268,33 +447,47 @@ async def _translate_one_batch_streaming(batch: list[str], video_context: str | 
             full_output = text or ""
 
     parsed = _parse_numbered(full_output, len(batch))
-    if parsed is not None:
-        yield None, parsed
-        return
+    outputs = (
+        [_finalize_translation_line(line) for line in parsed]
+        if parsed is not None
+        else None
+    )
 
-    fallback: list[str] = []
-    for line in batch:
-        yield _thought(f"\n【降级】逐行翻译：{line[:40]}{'…' if len(line) > 40 else ''}\n"), None
-        line_output = ""
-        async for frame, text in _collect_agent_output(_line_prompt(line, video_context)):
-            if frame is not None:
-                yield frame, None
-            else:
-                line_output = text or ""
-        fallback.append(_normalize_translation_line(line_output))
-    yield None, fallback
+    if outputs is None:
+        outputs = []
+        for line in batch:
+            yield _thought(f"\n【降级】逐行翻译：{line[:40]}{'…' if len(line) > 40 else ''}\n"), None
+            line_output = ""
+            async for frame, text in _collect_agent_output(
+                _line_prompt(line, video_context, glossary_block)
+            ):
+                if frame is not None:
+                    yield frame, None
+                else:
+                    line_output = text or ""
+            outputs.append(_finalize_translation_line(line_output))
+
+    for j, (src, out) in enumerate(zip(batch, outputs)):
+        if _needs_retranslation(src, out):
+            yield _thought(f"\n【补译】第 {j + 1} 行疑似漏译，正在重试…\n"), None
+            outputs[j] = await _translate_single_line(
+                src, video_context, glossary_block, strict=True
+            )
+
+    yield None, outputs
 
 
 async def translate_lines_keep_index(
     lines: list[str],
     batch_size: int = TRANSLATE_BATCH_SIZE,
     video_context: str | None = None,
+    glossary_block: str | None = None,
 ):
     """把多行文本分批翻译，结果与输入逐行对齐（无流式进度）。"""
     total = len(lines)
     for start in range(0, total, batch_size):
         batch = lines[start:start + batch_size]
-        translated = await _translate_one_batch(batch, video_context)
+        translated = await _translate_one_batch(batch, video_context, glossary_block)
         yield (min(start + len(batch), total), total, start, translated)
 
 
@@ -302,6 +495,7 @@ async def translate_lines_streaming(
     lines: list[str],
     batch_size: int = TRANSLATE_BATCH_SIZE,
     video_context: str | None = None,
+    glossary_block: str | None = None,
 ):
     """分批翻译并流式推送进度与 Agent 思考过程。"""
     total = len(lines)
@@ -315,7 +509,9 @@ async def translate_lines_streaming(
         yield ("progress", done, total, batch_index, batch_total)
 
         translated: list[str] | None = None
-        async for frame, result in _translate_one_batch_streaming(batch, video_context):
+        async for frame, result in _translate_one_batch_streaming(
+            batch, video_context, glossary_block
+        ):
             if frame is not None:
                 yield ("thought", frame)
             else:
@@ -443,9 +639,7 @@ def _expand_split_cues(
     for i in range(count):
         start, end = times[i]
         text = (translations[i] or "").strip()
-        if not text:
-            text = str(snippets[i].get("text", "")).strip()
-        if not text:
+        if not text or _needs_retranslation(str(snippets[i].get("text", "")), text):
             continue
 
         if not SRT_SPLIT_LONG_CUES or len(text) < SRT_SPLIT_MIN_CHARS:
@@ -548,11 +742,12 @@ async def stream_agent_events(text: str):
         # 侦听：Agent 正决定调用工具 (Tool Use)
         if kind == "on_tool_start":
             tool_name = event["name"]
-            yield _thought(f"\n【动作】可能存在生词，调用字典工具 [{tool_name}] 进行术语检索...\n")
+            yield _thought(_tool_start_thought(tool_name))
 
         # 侦听：工具调用完毕，得到 RAG 知识点
         elif kind == "on_tool_end":
-            yield _thought("\n【RAG】术语检索完成，已将相关术语作为上下文交给翻译 Agent。\n\n")
+            tool_name = event["name"]
+            yield _thought(_tool_end_thought(tool_name))
 
         # 侦听：Agent 思考完毕，利用 LLM 开始打出真正的翻译结果！
         elif kind == "on_chat_model_stream":
@@ -566,13 +761,23 @@ def read_root():
     return {"message": "Hello from Python Backend"}
 
 
+@app.post("/admin/reload-dictionary")
+def admin_reload_dictionary():
+    count = reload_dictionary()
+    return {"ok": True, "count": count}
+
+
 @app.get("/stream_translate")
 async def stream_translate(text: str):
     """挂载了 LangChain Agent 和 RAG 检索的单句流式翻译接口。"""
     async def event_generator():
         yield _thought("【LLM大脑】已接收任务，开始思考分析...\n")
+        glossary_block = build_session_glossary([text], None, None)
+        glossary_hits = collect_session_glossary_hits([text], None, None)
+        yield _thought(format_glossary_thought(glossary_hits))
         try:
-            async for frame in stream_agent_events(text):
+            prompt = _line_prompt(text, glossary_block=glossary_block)
+            async for frame in stream_agent_events(prompt):
                 yield frame
         except Exception as e:
             yield _thought(f"\n【程序异常】{str(e)}")
@@ -603,6 +808,10 @@ async def stream_translate_youtube(url: str):
 
             transcript_chunks = _chunk_transcript(snippets)
             term_domains = infer_term_domains(raw_ctx)
+            all_lines = [s["text"] for s in snippets]
+            glossary_hits = collect_session_glossary_hits(all_lines, raw_ctx, term_domains)
+            glossary_block = build_session_glossary(all_lines, raw_ctx, term_domains)
+            yield _thought(format_glossary_thought(glossary_hits))
 
             yield _thought(
                 f"\n【YouTube】已抓取 {len(snippets)} 段字幕（视频ID：{video_id}），"
@@ -614,7 +823,9 @@ async def stream_translate_youtube(url: str):
                     if len(transcript_chunks) > 1:
                         yield _token(f"\n\n【第 {index}/{len(transcript_chunks)} 段】\n")
                     yield _thought(f"—— 原文第 {index}/{len(transcript_chunks)} 段 ——\n{transcript_chunk}\n\n")
-                    async for frame in stream_agent_events(_preview_prompt(transcript_chunk, video_context)):
+                    async for frame in stream_agent_events(
+                        _preview_prompt(transcript_chunk, video_context, glossary_block)
+                    ):
                         yield frame
         except Exception as e:
             yield _thought(
@@ -648,10 +859,14 @@ async def download_translated_srt(url: str):
     lines = [s["text"] for s in snippets]
     translations: list[str] = [""] * len(lines)
     term_domains = infer_term_domains(raw_ctx)
+    glossary_block = build_session_glossary(lines, raw_ctx, term_domains)
     with term_domains_scope(term_domains):
-        async for _done, _total, start, batch in translate_lines_keep_index(lines, video_context=video_context):
+        async for _done, _total, start, batch in translate_lines_keep_index(
+            lines, video_context=video_context, glossary_block=glossary_block
+        ):
             for offset, text in enumerate(batch):
                 translations[start + offset] = text
+        await _repair_translations(lines, translations, video_context, glossary_block)
 
     srt_content = _build_srt(snippets, translations)
     encoded_filename = quote(f"{video_id}_zh.srt")
@@ -734,6 +949,9 @@ async def stream_translate_youtube_srt(url: str):
             translations: list[str] = [""] * len(lines)
             batch_total = max(1, (len(lines) + TRANSLATE_BATCH_SIZE - 1) // TRANSLATE_BATCH_SIZE)
             term_domains = infer_term_domains(raw_ctx)
+            glossary_hits = collect_session_glossary_hits(lines, raw_ctx, term_domains)
+            glossary_block = build_session_glossary(lines, raw_ctx, term_domains)
+            yield _thought(format_glossary_thought(glossary_hits))
 
             yield _thought(
                 f"\n【SRT 导出】已抓取 {len(snippets)} 条字幕（视频ID：{video_id}），"
@@ -741,7 +959,9 @@ async def stream_translate_youtube_srt(url: str):
             )
 
             with term_domains_scope(term_domains):
-                async for event in translate_lines_streaming(lines, video_context=video_context):
+                async for event in translate_lines_streaming(
+                    lines, video_context=video_context, glossary_block=glossary_block
+                ):
                     if event[0] == "progress":
                         _, done, total, batch_idx, batches = event
                         pct = int(done * 100 / total) if total else 0
@@ -756,6 +976,12 @@ async def stream_translate_youtube_srt(url: str):
                         start, batch = event[1], event[2]
                         for offset, text in enumerate(batch):
                             translations[start + offset] = text
+
+                repaired = await _repair_translations(
+                    lines, translations, video_context, glossary_block
+                )
+                if repaired:
+                    yield _thought(f"\n【SRT 导出】补译完成，修复 {repaired} 条漏翻字幕。\n")
 
             srt_content = _build_srt(snippets, translations)
             filename = f"{video_id}_zh.srt"
@@ -795,9 +1021,13 @@ async def translate_srt(file: UploadFile = File(...)):
         subs = pysrt.from_string(text_content)
         originals = [sub.text for sub in subs]
         translated = [""] * len(originals)
-        async for _done, _total, start, batch in translate_lines_keep_index(originals):
+        glossary_block = build_session_glossary(originals, None, None)
+        async for _done, _total, start, batch in translate_lines_keep_index(
+            originals, glossary_block=glossary_block
+        ):
             for offset, text in enumerate(batch):
                 translated[start + offset] = text
+        await _repair_translations(originals, translated, glossary_block=glossary_block)
         kept: list = []
         for sub, text in zip(subs, translated):
             line = (text or "").strip()
@@ -822,7 +1052,10 @@ async def translate_srt(file: UploadFile = File(...)):
     to_translate = [raw_lines[i].strip() for i in non_empty_idx]
 
     translated_map: dict[int, str] = {}
-    async for _done, _total, start, batch in translate_lines_keep_index(to_translate):
+    glossary_block = build_session_glossary(to_translate, None, None)
+    async for _done, _total, start, batch in translate_lines_keep_index(
+        to_translate, glossary_block=glossary_block
+    ):
         for offset, text in enumerate(batch):
             translated_map[non_empty_idx[start + offset]] = text
 

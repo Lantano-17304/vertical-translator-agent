@@ -5,15 +5,18 @@
       "彩虹社",
       "NIJISANJI",
       "Nijisanji",
-      "彩虹社"
+      "にじさんじ",
+      "二次三次",
+      "2时3时"
     ],
     "category": "nijisanji",
     "translation": "彩虹社",
     "meaning": "にじさんじ的中文常用称呼。",
     "examples": [
-      "彩虹社所属liver。"
+      "彩虹社所属liver。",
+      "二次三次所属の配信。"
     ],
-    "notes": "组织名，中文常用「彩虹社」。"
+    "notes": "组织名，中文常用「彩虹社」。YouTube 自动字幕常将「にじさんじ」误识为「二次三次」「2时3时」，译文须还原为「彩虹社」，勿按字面译成次数或时间。"
   },
   {
     "term": "にじさんじ",
@@ -21,15 +24,19 @@
       "彩虹社",
       "NIJISANJI",
       "Nijisanji",
-      "彩虹社"
+      "二次三次",
+      "2时3时",
+      "ニジサンジ"
     ],
     "category": "nijisanji",
     "translation": "彩虹社",
     "meaning": "日本VTuber事务所；中文圈常称「彩虹社」。",
     "examples": [
-      "にじさんじ所属の配信。"
+      "にじさんじ所属の配信。",
+      "二次三次のメンバー",
+      "2时3时所属"
     ],
-    "notes": "可写作 NIJISANJI / Nijisanji。"
+    "notes": "可写作 NIJISANJI / Nijisanji。YouTube 语音识别高频误听：「二次三次」「2时3时」均指本事务所，翻译时统一作「彩虹社」。"
   },
   {
     "term": "月ノ美兎",
@@ -2640,5 +2647,19 @@
       "一桥绫人さん"
     ],
     "notes": "中文圈固定译名「一桥绫人」，指彩虹社（NIJISANJI）成员。"
+  },
+  {
+    "term": "VTuber",
+    "aliases": [
+      "ブイチューバー",
+      "バーチャルYouTuber"
+    ],
+    "category": "VTuber行业/职业",
+    "translation": "虚拟主播",
+    "meaning": "使用虚拟形象在视频平台（如YouTube）进行直播、视频投稿等活动的创作者。通常通过动作捕捉技术实时驱动2D或3D角色。",
+    "examples": [
+      "VTuberが自分のフィギュアを作ってみた【Part6/爪編】【雑談多め】"
+    ],
+    "notes": "该词为「Virtual YouTuber」的缩写，泛指所有使用虚拟形象进行内容创作的直播主/视频创作者，不限于YouTube平台。"
   }
 ]
