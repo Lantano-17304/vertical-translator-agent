@@ -49,13 +49,64 @@ function proxyDownload(backendUrl, res) {
     });
 }
 
-// 下载 YouTube 原视频（可选功能，后端默认关闭）
-app.get('/api/download-youtube-video', (req, res) => {
+function buildBackendQuery(path, query) {
+    const params = new URLSearchParams();
+    Object.entries(query || {}).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            params.set(key, value);
+        }
+    });
+    const qs = params.toString();
+    return `http://127.0.0.1:8000${path}${qs ? `?${qs}` : ''}`;
+}
+
+// 获取 YouTube 视频可选画质
+app.get('/api/youtube-video-formats', (req, res) => {
     const url = req.query.url;
     if (!url) {
         return res.status(400).json({ error: 'url query parameter is required' });
     }
-    const backendUrl = `http://127.0.0.1:8000/download_youtube_video?url=${encodeURIComponent(url)}`;
+    const backendUrl = buildBackendQuery('/youtube_video_formats', { url });
+    http.get(backendUrl, (backendRes) => {
+        let body = '';
+        backendRes.on('data', (chunk) => { body += chunk; });
+        backendRes.on('end', () => {
+            res.statusCode = backendRes.statusCode || 502;
+            res.setHeader('Content-Type', backendRes.headers['content-type'] || 'application/json');
+            res.end(body);
+        });
+    }).on('error', (e) => {
+        res.status(502).json({ error: 'Backend offline', detail: e.message });
+    });
+});
+
+// 流式下载 YouTube 原视频（含进度）
+app.get('/api/stream-download-youtube-video', (req, res) => {
+    const { url, quality } = req.query;
+    if (!url) {
+        return res.status(400).json({ error: 'url query parameter is required' });
+    }
+    const backendUrl = buildBackendQuery('/stream_download_youtube_video', { url, quality: quality || 'best' });
+    proxySSE(backendUrl, res);
+});
+
+// 按 token 拉取已下载的视频文件
+app.get('/api/download-youtube-video-file', (req, res) => {
+    const token = req.query.token;
+    if (!token) {
+        return res.status(400).json({ error: 'token query parameter is required' });
+    }
+    const backendUrl = buildBackendQuery('/download_youtube_video_file', { token });
+    proxyDownload(backendUrl, res);
+});
+
+// 下载 YouTube 原视频（直连，无进度；保留给脚本使用）
+app.get('/api/download-youtube-video', (req, res) => {
+    const { url, quality } = req.query;
+    if (!url) {
+        return res.status(400).json({ error: 'url query parameter is required' });
+    }
+    const backendUrl = buildBackendQuery('/download_youtube_video', { url, quality: quality || 'best' });
     proxyDownload(backendUrl, res);
 });
 

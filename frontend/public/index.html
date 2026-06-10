@@ -228,6 +228,55 @@
         
         .translation { color: #0f172a; }
         .hidden { display: none; }
+
+        .video-download-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .video-quality-select {
+            min-width: 180px;
+            padding: 9px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #FAFAFA;
+            color: var(--text-main);
+        }
+
+        .video-quality-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        .progress-wrap {
+            margin: 8px 0 4px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), #6366f1);
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+        .progress-label {
+            margin-top: 6px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
     </style>
 </head>
 <body>
@@ -246,7 +295,21 @@
         <div class="btn-row">
             <button id="youtubeBtn" onclick="startYoutubeTranslation()" class="btn-red">页面预览翻译</button>
             <button id="youtubeSrtBtn" onclick="downloadYoutubeSrt()" class="btn-purple">下载翻译字幕 (SRT)</button>
-            <button id="youtubeVideoBtn" onclick="downloadYoutubeVideo()" class="btn-dark">下载原视频 (可选)</button>
+        </div>
+        <div class="video-download-row">
+            <select id="youtubeVideoQuality" class="video-quality-select" title="视频画质">
+                <option value="best">最佳画质（自动）</option>
+                <option value="1080">1080p</option>
+                <option value="720">720p</option>
+                <option value="480">480p</option>
+                <option value="360">360p</option>
+                <option value="audio">仅音频</option>
+            </select>
+            <button id="youtubeVideoBtn" onclick="downloadYoutubeVideo()" class="btn-dark">下载原视频</button>
+        </div>
+        <div id="youtubeVideoProgressWrap" class="progress-wrap hidden">
+            <div class="progress-bar"><div id="youtubeVideoProgressFill" class="progress-fill"></div></div>
+            <div id="youtubeVideoProgressLabel" class="progress-label">准备中…</div>
         </div>
         <div>
             <span id="youtubeSrtStatus" class="status-text"></span>
@@ -413,6 +476,92 @@
             return (m && m[1]) ? m[1] : '';
         }
 
+        let _videoFormatsTimer = null;
+        let _videoFormatsUrl = '';
+
+        function _setVideoProgress(percent, message) {
+            const wrap = document.getElementById('youtubeVideoProgressWrap');
+            const fill = document.getElementById('youtubeVideoProgressFill');
+            const label = document.getElementById('youtubeVideoProgressLabel');
+            wrap.classList.remove('hidden');
+            const p = (percent === null || percent === undefined) ? null : Math.max(0, Math.min(100, percent));
+            fill.style.width = (p === null ? 8 : p) + '%';
+            label.textContent = message || (p !== null ? (p.toFixed(1) + '%') : '处理中…');
+        }
+
+        function _hideVideoProgress() {
+            document.getElementById('youtubeVideoProgressWrap').classList.add('hidden');
+            document.getElementById('youtubeVideoProgressFill').style.width = '0%';
+        }
+
+        async function refreshYoutubeVideoFormats() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const select = document.getElementById('youtubeVideoQuality');
+            if (!url) {
+                _videoFormatsUrl = '';
+                return;
+            }
+            if (url === _videoFormatsUrl) return;
+            _videoFormatsUrl = url;
+            select.disabled = true;
+            try {
+                const res = await fetch(`/api/youtube-video-formats?url=${encodeURIComponent(url)}`);
+                if (!res.ok) {
+                    return;
+                }
+                const data = await res.json();
+                const prev = select.value || 'best';
+                select.innerHTML = '';
+                (data.options || []).forEach(function(opt) {
+                    const el = document.createElement('option');
+                    el.value = opt.id;
+                    let label = opt.label;
+                    if (opt.id === 'best' && data.max_height) {
+                        label += `（最高 ${data.max_height}p）`;
+                    } else if (opt.available === false) {
+                        label += '（不可用）';
+                        el.disabled = true;
+                    }
+                    el.textContent = label;
+                    select.appendChild(el);
+                });
+                if ([...select.options].some(function(o) { return o.value === prev && !o.disabled; })) {
+                    select.value = prev;
+                } else {
+                    select.value = 'best';
+                }
+            } catch (e) {
+                console.warn('获取视频画质列表失败', e);
+            } finally {
+                select.disabled = false;
+            }
+        }
+
+        document.getElementById('youtubeUrl').addEventListener('input', function() {
+            clearTimeout(_videoFormatsTimer);
+            _videoFormatsTimer = setTimeout(refreshYoutubeVideoFormats, 600);
+        });
+
+        async function _fetchVideoFileByToken(token, fallbackName) {
+            const res = await fetch(`/api/download-youtube-video-file?token=${encodeURIComponent(token)}`);
+            if (!res.ok) {
+                const text = await res.text().catch(() => '');
+                throw new Error((text && text.trim()) ? text : `HTTP ${res.status}`);
+            }
+            const cd = res.headers.get('content-disposition') || '';
+            const filename = _filenameFromContentDisposition(cd) || fallbackName || 'youtube_video.bin';
+            const blob = await res.blob();
+            const dlUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = dlUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(dlUrl);
+            return filename;
+        }
+
         // 可选：下载 YouTube 原视频（后端默认关闭，需 .env 开关）
         async function downloadYoutubeVideo() {
             const url = document.getElementById('youtubeUrl').value.trim();
@@ -420,36 +569,63 @@
                 alert("请先粘贴一个 YouTube 链接！");
                 return;
             }
+            await refreshYoutubeVideoFormats();
+            const quality = document.getElementById('youtubeVideoQuality').value || 'best';
             const btn = document.getElementById('youtubeVideoBtn');
             const status = document.getElementById('youtubeVideoStatus');
-            status.textContent = "准备下载…（大文件可能较慢）";
+
+            status.textContent = "";
+            _setVideoProgress(0, "准备下载…（大文件可能较慢）");
             btn.disabled = true;
-            try {
-                const res = await fetch(`/api/download-youtube-video?url=${encodeURIComponent(url)}`);
-                if (!res.ok) {
-                    const text = await res.text().catch(() => '');
-                    status.textContent = "❌ 下载失败";
-                    alert((text && text.trim()) ? text : `下载失败：HTTP ${res.status}`);
+
+            const sseUrl = `/api/stream-download-youtube-video?url=${encodeURIComponent(url)}&quality=${encodeURIComponent(quality)}`;
+            const eventSource = new EventSource(sseUrl);
+            let finished = false;
+
+            eventSource.onmessage = async function(event) {
+                if (event.data === "[DONE]") {
+                    eventSource.close();
+                    btn.disabled = false;
+                    if (!finished) {
+                        _hideVideoProgress();
+                    }
                     return;
                 }
-                const cd = res.headers.get('content-disposition') || '';
-                const filename = _filenameFromContentDisposition(cd) || 'youtube_video.bin';
-                const blob = await res.blob();
-                const dlUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = dlUrl;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(dlUrl);
-                status.textContent = "✅ 已开始下载：" + filename;
-            } catch (e) {
-                status.textContent = "❌ 下载失败";
-                alert("下载失败：" + (e && e.message ? e.message : String(e)));
-            } finally {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'video_progress') {
+                        _setVideoProgress(data.percent, data.message);
+                    } else if (data.type === 'video_ready') {
+                        finished = true;
+                        _setVideoProgress(100, "正在保存到本地…");
+                        try {
+                            const filename = await _fetchVideoFileByToken(data.token, data.filename);
+                            status.textContent = "✅ 已开始下载：" + filename;
+                            _setVideoProgress(100, "✅ 下载完成：" + filename);
+                        } catch (e) {
+                            status.textContent = "❌ 下载失败";
+                            alert("保存文件失败：" + (e && e.message ? e.message : String(e)));
+                            _hideVideoProgress();
+                        }
+                    } else if (data.type === 'error') {
+                        finished = true;
+                        status.textContent = "❌ 下载失败";
+                        alert(data.message || "下载失败");
+                        _hideVideoProgress();
+                    }
+                } catch (e) {
+                    console.error("解析视频下载流失败", e, event.data);
+                }
+            };
+
+            eventSource.onerror = function() {
+                eventSource.close();
                 btn.disabled = false;
-            }
+                if (!finished) {
+                    status.textContent = "❌ 连接中断或出错";
+                    _hideVideoProgress();
+                }
+            };
         }
 
         async function startFileTranslation() {

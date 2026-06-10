@@ -23,8 +23,10 @@ import re
 import json
 import tempfile
 import time
+from collections.abc import Callable
 from html import unescape
 from pathlib import Path
+from typing import Any
 
 import yt_dlp
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -367,7 +369,110 @@ def fetch_transcript(video_id: str) -> list[dict]:
             ) from fallback_error
 
 
-def download_video_file(url_or_id: str, *, output_dir: Path) -> tuple[Path, str]:
+# 网页可选画质（id, 展示名, yt-dlp format 选择器）
+VIDEO_QUALITY_PRESETS: list[tuple[str, str, str]] = [
+    ("best", "最佳画质（自动）", "bv*+ba/b"),
+    ("1080", "1080p", "bv*[height<=1080]+ba/b[height<=1080]/bv*[height<=1080]+ba/b"),
+    ("720", "720p", "bv*[height<=720]+ba/b[height<=720]/bv*[height<=720]+ba/b"),
+    ("480", "480p", "bv*[height<=480]+ba/b[height<=480]/bv*[height<=480]+ba/b"),
+    ("360", "360p", "bv*[height<=360]+ba/b[height<=360]/bv*[height<=360]+ba/b"),
+    ("audio", "仅音频", "ba/b"),
+]
+
+
+def resolve_video_format_selector(quality: str | None = None) -> str:
+    """将前端 quality id 解析为 yt-dlp format 选择器。"""
+    q = (quality or "").strip().lower()
+    for qid, _label, selector in VIDEO_QUALITY_PRESETS:
+        if q == qid:
+            return selector
+    if q.isdigit():
+        h = int(q)
+        return (
+            f"bv*[height<={h}]+ba/b[height<={h}]/"
+            f"bv*[height<={h}]+ba/b"
+        )
+    env_default = os.environ.get("YOUTUBE_VIDEO_FORMAT", "").strip()
+    return env_default or "bv*+ba/b"
+
+
+def list_video_quality_options(url_or_id: str) -> dict[str, Any]:
+    """列出可选画质（含该视频实际最高分辨率）。"""
+    video_id = extract_video_id(url_or_id)
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    ydl_opts = _base_ydl_opts()
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+
+    title = (info.get("title") or video_id).strip()
+    heights: set[int] = set()
+    for fmt in info.get("formats") or []:
+        h = fmt.get("height")
+        if h and fmt.get("vcodec") not in (None, "none"):
+            heights.add(int(h))
+    max_height = max(heights) if heights else None
+
+    options: list[dict[str, Any]] = []
+    for qid, label, selector in VIDEO_QUALITY_PRESETS:
+        entry: dict[str, Any] = {
+            "id": qid,
+            "label": label,
+            "format_selector": selector,
+        }
+        if qid.isdigit() and max_height is not None:
+            entry["available"] = int(qid) <= max_height
+        else:
+            entry["available"] = True
+        options.append(entry)
+
+    return {
+        "video_id": video_id,
+        "title": title,
+        "max_height": max_height,
+        "options": options,
+    }
+
+
+def _normalize_progress_event(raw: dict[str, Any]) -> dict[str, Any]:
+    """把 yt-dlp progress_hook 事件规范化为前端可消费的字段。"""
+    status = raw.get("status") or ""
+    if status == "downloading":
+        total = raw.get("total_bytes") or raw.get("total_bytes_estimate")
+        downloaded = int(raw.get("downloaded_bytes") or 0)
+        percent: float | None = None
+        if total:
+            percent = min(100.0, downloaded / float(total) * 100.0)
+        speed = raw.get("speed")
+        eta = raw.get("eta")
+        parts = []
+        if percent is not None:
+            parts.append(f"{percent:.1f}%")
+        if speed:
+            parts.append(f"{speed / 1024 / 1024:.1f} MB/s")
+        if eta is not None and eta >= 0:
+            parts.append(f"剩余约 {eta}s")
+        return {
+            "status": "downloading",
+            "percent": percent,
+            "downloaded_bytes": downloaded,
+            "total_bytes": int(total) if total else None,
+            "speed_bytes": float(speed) if speed else None,
+            "eta_sec": int(eta) if eta is not None and eta >= 0 else None,
+            "message": "下载中… " + " · ".join(parts) if parts else "下载中…",
+        }
+    if status == "finished":
+        return {"status": "processing", "message": "合并/转码中…"}
+    return {"status": status or "working", "message": status or "处理中…"}
+
+
+def download_video_file(
+    url_or_id: str,
+    *,
+    output_dir: Path,
+    quality: str | None = None,
+    format_selector: str | None = None,
+    progress_callback: Callable[[dict[str, Any]], None] | None = None,
+) -> tuple[Path, str]:
     """下载 YouTube 原视频到指定目录，返回 (文件路径, 建议文件名)。
 
     注意：这是可选功能，通常用于“用户明确想下载原视频”的场景。
@@ -379,12 +484,12 @@ def download_video_file(url_or_id: str, *, output_dir: Path) -> tuple[Path, str]
     output_dir.mkdir(parents=True, exist_ok=True)
     # 让 yt-dlp 自己决定扩展名；同一 video_id 下只会生成一个主视频文件
     outtmpl = str(output_dir / f"{video_id}.%(ext)s")
-    format_selector = os.environ.get("YOUTUBE_VIDEO_FORMAT", "").strip() or "bv*+ba/b"
+    selector = format_selector or resolve_video_format_selector(quality)
 
     ydl_opts = build_ytdlp_opts(
         skip_download=False,
         outtmpl=outtmpl,
-        format_selector=format_selector,
+        format_selector=selector,
         quiet=True,
     )
     # 降低资源占用：不写字幕、不写描述、不写缩略图
@@ -397,6 +502,11 @@ def download_video_file(url_or_id: str, *, output_dir: Path) -> tuple[Path, str]
             "overwrites": True,
         }
     )
+    if progress_callback is not None:
+        def _hook(raw: dict[str, Any]) -> None:
+            progress_callback(_normalize_progress_event(raw))
+
+        ydl_opts["progress_hooks"] = [_hook]
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)

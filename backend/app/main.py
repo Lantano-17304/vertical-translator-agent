@@ -4,6 +4,9 @@ import json
 import os
 import tempfile
 import asyncio
+import time
+import uuid
+import shutil
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -16,7 +19,14 @@ import pysrt
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
 from fastapi.responses import StreamingResponse, PlainTextResponse, FileResponse
 from app.agent.core import agent_executor
+from app.agent.proofread import invoke_proofread, proofread_enabled
+from app.proofread_prompts import proofread_batch_user, proofread_line_user
 from app.term_domains import infer_term_domains, format_domain_selection
+from app.wiki_franchise import (
+    infer_franchise_hints,
+    wiki_franchise_scope,
+    format_franchise_selection,
+)
 from app.term_glossary import (
     build_session_glossary,
     collect_session_glossary_hits,
@@ -37,6 +47,7 @@ from app.youtube_utils import (
     fetch_video_context,
     format_video_context,
     download_video_file,
+    list_video_quality_options,
 )
 from urllib.parse import quote
 
@@ -70,6 +81,54 @@ ENABLE_YOUTUBE_VIDEO_DOWNLOAD = os.environ.get("ENABLE_YOUTUBE_VIDEO_DOWNLOAD", 
     "on",
 }
 
+# 流式下载完成后暂存文件，供前端按 token 拉取（默认 1 小时过期）
+_VIDEO_DOWNLOAD_CACHE_TTL = int(os.environ.get("VIDEO_DOWNLOAD_CACHE_TTL", "3600"))
+_video_download_cache: dict[str, dict] = {}
+
+
+def _require_youtube_video_download() -> None:
+    if not ENABLE_YOUTUBE_VIDEO_DOWNLOAD:
+        raise HTTPException(
+            status_code=403,
+            detail="已禁用“下载原视频”功能。请在 .env 设置 ENABLE_YOUTUBE_VIDEO_DOWNLOAD=1 后重启后端。",
+        )
+
+
+def _purge_expired_video_cache() -> None:
+    now = time.time()
+    expired = [
+        token
+        for token, entry in _video_download_cache.items()
+        if now - float(entry.get("created", 0)) > _VIDEO_DOWNLOAD_CACHE_TTL
+    ]
+    for token in expired:
+        _remove_video_cache_entry(token)
+
+
+def _remove_video_cache_entry(token: str) -> None:
+    entry = _video_download_cache.pop(token, None)
+    if not entry:
+        return
+    tmpdir = entry.get("tmpdir")
+    if not tmpdir:
+        return
+    try:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+    except Exception:
+        pass
+
+
+def _store_video_download(file_path: Path, download_name: str, tmpdir: Path) -> str:
+    _purge_expired_video_cache()
+    token = uuid.uuid4().hex
+    _video_download_cache[token] = {
+        "path": file_path,
+        "filename": download_name,
+        "tmpdir": tmpdir,
+        "created": time.time(),
+    }
+    return token
+
 
 def _sse(payload: dict) -> str:
     """打包成一条 SSE 帧。"""
@@ -86,6 +145,14 @@ def _token(content: str) -> str:
 
 def _progress(done: int, total: int, message: str = "") -> str:
     return _sse({"type": "progress", "done": done, "total": total, "message": message})
+
+
+def _video_progress(payload: dict) -> str:
+    return _sse({"type": "video_progress", **payload})
+
+
+def _video_ready(token: str, filename: str) -> str:
+    return _sse({"type": "video_ready", "token": token, "filename": filename})
 
 
 def _srt_ready(filename: str, content: str) -> str:
@@ -283,6 +350,54 @@ def _line_prompt(
     )
 
 
+async def _proofread_line_wrapped(
+    source: str,
+    draft: str,
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+    *,
+    prev_line: str = "",
+    next_line: str = "",
+) -> str:
+    """校对单行译文；空初译直接返回。"""
+    if not (draft or "").strip():
+        return draft
+    body = proofread_line_user(
+        source, draft, prev_line=prev_line, next_line=next_line
+    )
+    prompt = _inject_prompt_context(
+        body,
+        "校对以下译文",
+        video_context=video_context,
+        glossary_block=glossary_block,
+    )
+    raw = await invoke_proofread(prompt)
+    return _finalize_translation_line(raw)
+
+
+async def _proofread_batch_wrapped(
+    batch: list[str],
+    outputs: list[str],
+    video_context: str | None = None,
+    glossary_block: str | None = None,
+) -> list[str]:
+    """校对一批译文；解析失败则回退初译。"""
+    if not batch or len(batch) != len(outputs):
+        return outputs
+    body = proofread_batch_user(list(zip(batch, outputs)))
+    prompt = _inject_prompt_context(
+        body,
+        "校对下列字幕译文",
+        video_context=video_context,
+        glossary_block=glossary_block,
+    )
+    raw = await invoke_proofread(prompt)
+    parsed = _parse_numbered(_normalize_agent_output(raw), len(batch))
+    if parsed is None:
+        return outputs
+    return [_finalize_translation_line(line) for line in parsed]
+
+
 async def _translate_single_line(
     line: str,
     video_context: str | None = None,
@@ -429,6 +544,11 @@ async def _translate_one_batch(
             outputs[j] = await _translate_single_line(
                 src, video_context, glossary_block, strict=True
             )
+
+    if proofread_enabled():
+        outputs = await _proofread_batch_wrapped(
+            batch, outputs, video_context, glossary_block
+        )
     return outputs
 
 
@@ -473,6 +593,17 @@ async def _translate_one_batch_streaming(
             outputs[j] = await _translate_single_line(
                 src, video_context, glossary_block, strict=True
             )
+
+    if proofread_enabled():
+        yield (
+            _thought(
+                "\n【校对 Agent】正在复审本批译文（专名一致 / 去元叙述 / ASR 复核）...\n"
+            ),
+            None,
+        )
+        outputs = await _proofread_batch_wrapped(
+            batch, outputs, video_context, glossary_block
+        )
 
     yield None, outputs
 
@@ -542,6 +673,11 @@ async def _fetch_youtube_payload(url: str) -> tuple[str, list[dict], str, dict]:
 def _domain_thought(raw_ctx: dict) -> str:
     domains = infer_term_domains(raw_ctx)
     return f"\n【术语库】{format_domain_selection(domains)}\n\n"
+
+
+def _franchise_thought(raw_ctx: dict) -> str:
+    hints = infer_franchise_hints(raw_ctx)
+    return f"\n【Wiki 上下文】{format_franchise_selection(hints)}\n\n"
 
 
 # ------------------------- SRT 生成 -------------------------
@@ -777,8 +913,27 @@ async def stream_translate(text: str):
         yield _thought(format_glossary_thought(glossary_hits))
         try:
             prompt = _line_prompt(text, glossary_block=glossary_block)
-            async for frame in stream_agent_events(prompt):
-                yield frame
+            if proofread_enabled():
+                draft = ""
+                async for frame, collected in _collect_agent_output(prompt):
+                    if frame is not None:
+                        yield frame
+                    else:
+                        draft = collected or ""
+                draft = _finalize_translation_line(draft)
+                if _needs_retranslation(text, draft):
+                    draft = await _translate_single_line(
+                        text, glossary_block=glossary_block, strict=True
+                    )
+                yield _thought("\n【校对 Agent】正在复审...\n")
+                final = await _proofread_line_wrapped(
+                    text, draft, glossary_block=glossary_block
+                )
+                if final:
+                    yield _token(final)
+            else:
+                async for frame in stream_agent_events(prompt):
+                    yield frame
         except Exception as e:
             yield _thought(f"\n【程序异常】{str(e)}")
         yield "data: [DONE]\n\n"
@@ -805,9 +960,11 @@ async def stream_translate_youtube(url: str):
                 yield _thought("\n【视频背景】未能获取标题/简介，将仅依据字幕翻译。\n\n")
 
             yield _thought(_domain_thought(raw_ctx))
+            yield _thought(_franchise_thought(raw_ctx))
 
             transcript_chunks = _chunk_transcript(snippets)
             term_domains = infer_term_domains(raw_ctx)
+            franchise_hints = infer_franchise_hints(raw_ctx)
             all_lines = [s["text"] for s in snippets]
             glossary_hits = collect_session_glossary_hits(all_lines, raw_ctx, term_domains)
             glossary_block = build_session_glossary(all_lines, raw_ctx, term_domains)
@@ -819,14 +976,15 @@ async def stream_translate_youtube(url: str):
             )
 
             with term_domains_scope(term_domains):
-                for index, transcript_chunk in enumerate(transcript_chunks, start=1):
-                    if len(transcript_chunks) > 1:
-                        yield _token(f"\n\n【第 {index}/{len(transcript_chunks)} 段】\n")
-                    yield _thought(f"—— 原文第 {index}/{len(transcript_chunks)} 段 ——\n{transcript_chunk}\n\n")
-                    async for frame in stream_agent_events(
-                        _preview_prompt(transcript_chunk, video_context, glossary_block)
-                    ):
-                        yield frame
+                with wiki_franchise_scope(franchise_hints):
+                    for index, transcript_chunk in enumerate(transcript_chunks, start=1):
+                        if len(transcript_chunks) > 1:
+                            yield _token(f"\n\n【第 {index}/{len(transcript_chunks)} 段】\n")
+                        yield _thought(f"—— 原文第 {index}/{len(transcript_chunks)} 段 ——\n{transcript_chunk}\n\n")
+                        async for frame in stream_agent_events(
+                            _preview_prompt(transcript_chunk, video_context, glossary_block)
+                        ):
+                            yield frame
         except Exception as e:
             yield _thought(
                 f"\n【抓取/翻译失败】{type(e).__name__}: {str(e)}\n"
@@ -859,14 +1017,16 @@ async def download_translated_srt(url: str):
     lines = [s["text"] for s in snippets]
     translations: list[str] = [""] * len(lines)
     term_domains = infer_term_domains(raw_ctx)
+    franchise_hints = infer_franchise_hints(raw_ctx)
     glossary_block = build_session_glossary(lines, raw_ctx, term_domains)
     with term_domains_scope(term_domains):
-        async for _done, _total, start, batch in translate_lines_keep_index(
-            lines, video_context=video_context, glossary_block=glossary_block
-        ):
-            for offset, text in enumerate(batch):
-                translations[start + offset] = text
-        await _repair_translations(lines, translations, video_context, glossary_block)
+        with wiki_franchise_scope(franchise_hints):
+            async for _done, _total, start, batch in translate_lines_keep_index(
+                lines, video_context=video_context, glossary_block=glossary_block
+            ):
+                for offset, text in enumerate(batch):
+                    translations[start + offset] = text
+            await _repair_translations(lines, translations, video_context, glossary_block)
 
     srt_content = _build_srt(snippets, translations)
     encoded_filename = quote(f"{video_id}_zh.srt")
@@ -877,35 +1037,43 @@ async def download_translated_srt(url: str):
     )
 
 
+@app.get("/youtube_video_formats")
+async def youtube_video_formats(url: str):
+    """列出 YouTube 视频可选画质（供前端下拉选择）。"""
+    _require_youtube_video_download()
+    try:
+        return list_video_quality_options(url)
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                f"获取视频格式失败：{type(e).__name__}: {e}\n"
+                "（提示：国内访问 YouTube 需在 .env 配置 YOUTUBE_PROXY；"
+                "若提示登录/校验，请设置 YOUTUBE_COOKIES_FROM_BROWSER 并确保已登录。）"
+            ),
+        )
+
+
 @app.get("/download_youtube_video")
-async def download_youtube_video(url: str, background: BackgroundTasks):
+async def download_youtube_video(url: str, background: BackgroundTasks, quality: str = "best"):
     """下载 YouTube 原视频（可选功能，默认关闭）。
 
     返回二进制文件下载。会下载到临时目录，响应结束后自动清理。
     """
-    if not ENABLE_YOUTUBE_VIDEO_DOWNLOAD:
-        raise HTTPException(
-            status_code=403,
-            detail="已禁用“下载原视频”功能。请在 .env 设置 ENABLE_YOUTUBE_VIDEO_DOWNLOAD=1 后重启后端。",
-        )
+    _require_youtube_video_download()
 
     tmpdir = Path(tempfile.mkdtemp(prefix="yt_video_"))
 
     def _cleanup():
         try:
-            for p in tmpdir.glob("*"):
-                try:
-                    p.unlink()
-                except Exception:
-                    pass
-            tmpdir.rmdir()
+            shutil.rmtree(tmpdir, ignore_errors=True)
         except Exception:
             pass
 
     background.add_task(_cleanup)
 
     try:
-        file_path, download_name = download_video_file(url, output_dir=tmpdir)
+        file_path, download_name = download_video_file(url, output_dir=tmpdir, quality=quality)
     except Exception as e:
         raise HTTPException(
             status_code=502,
@@ -923,6 +1091,101 @@ async def download_youtube_video(url: str, background: BackgroundTasks):
         filename=download_name,
         background=background,
     )
+
+
+@app.get("/download_youtube_video_file")
+async def download_youtube_video_file(token: str, background: BackgroundTasks):
+    """按 token 拉取已缓存的 YouTube 视频文件（配合流式下载端点）。"""
+    _require_youtube_video_download()
+    _purge_expired_video_cache()
+    entry = _video_download_cache.get(token)
+    if not entry:
+        raise HTTPException(status_code=404, detail="下载链接已过期或不存在，请重新下载。")
+
+    file_path = entry["path"]
+    download_name = entry["filename"]
+    tmpdir = entry["tmpdir"]
+
+    def _cleanup():
+        _remove_video_cache_entry(token)
+
+    background.add_task(_cleanup)
+
+    return FileResponse(
+        path=str(file_path),
+        media_type="application/octet-stream",
+        filename=download_name,
+        background=background,
+    )
+
+
+@app.get("/stream_download_youtube_video")
+async def stream_download_youtube_video(url: str, quality: str = "best"):
+    """流式下载 YouTube 原视频：推送 yt-dlp 进度，完成后下发 token 供拉取文件。"""
+    _require_youtube_video_download()
+
+    async def event_generator():
+        tmpdir = Path(tempfile.mkdtemp(prefix="yt_video_"))
+        progress_state: dict = {"status": "starting", "message": "正在解析视频信息…", "percent": 0}
+        last_key = ""
+        done = asyncio.Event()
+        error_holder: list[Exception] = []
+        result_holder: list[tuple[Path, str]] = []
+
+        def on_progress(payload: dict) -> None:
+            progress_state.clear()
+            progress_state.update(payload)
+
+        def _run_download():
+            try:
+                result_holder.append(
+                    download_video_file(
+                        url,
+                        output_dir=tmpdir,
+                        quality=quality,
+                        progress_callback=on_progress,
+                    )
+                )
+            except Exception as exc:
+                error_holder.append(exc)
+            finally:
+                done.set()
+
+        yield _video_progress(dict(progress_state))
+        loop = asyncio.get_running_loop()
+        loop.run_in_executor(None, _run_download)
+
+        while not done.is_set():
+            key = json.dumps(progress_state, sort_keys=True, default=str)
+            if key != last_key:
+                yield _video_progress(dict(progress_state))
+                last_key = key
+            await asyncio.sleep(0.35)
+
+        if error_holder:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            exc = error_holder[0]
+            yield _sse(
+                {
+                    "type": "error",
+                    "message": (
+                        f"下载视频失败：{type(exc).__name__}: {exc}\n"
+                        "（提示：国内访问 YouTube 需在 .env 配置 YOUTUBE_PROXY；"
+                        "若提示登录/校验，请设置 YOUTUBE_COOKIES_FROM_BROWSER 并确保已登录；"
+                        "必要时更新 yt-dlp。）"
+                    ),
+                }
+            )
+            yield "data: [DONE]\n\n"
+            return
+
+        file_path, download_name = result_holder[0]
+        yield _video_progress({"status": "finished", "message": "下载完成，准备传送文件…", "percent": 100})
+        token = _store_video_download(file_path, download_name, tmpdir)
+        yield _video_ready(token, download_name)
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 @app.get("/stream_translate_youtube_srt")
@@ -944,11 +1207,13 @@ async def stream_translate_youtube_srt(url: str):
                 yield _thought("\n【视频背景】未能获取标题/简介，将仅依据字幕翻译。\n\n")
 
             yield _thought(_domain_thought(raw_ctx))
+            yield _thought(_franchise_thought(raw_ctx))
 
             lines = [s["text"] for s in snippets]
             translations: list[str] = [""] * len(lines)
             batch_total = max(1, (len(lines) + TRANSLATE_BATCH_SIZE - 1) // TRANSLATE_BATCH_SIZE)
             term_domains = infer_term_domains(raw_ctx)
+            franchise_hints = infer_franchise_hints(raw_ctx)
             glossary_hits = collect_session_glossary_hits(lines, raw_ctx, term_domains)
             glossary_block = build_session_glossary(lines, raw_ctx, term_domains)
             yield _thought(format_glossary_thought(glossary_hits))
@@ -959,29 +1224,30 @@ async def stream_translate_youtube_srt(url: str):
             )
 
             with term_domains_scope(term_domains):
-                async for event in translate_lines_streaming(
-                    lines, video_context=video_context, glossary_block=glossary_block
-                ):
-                    if event[0] == "progress":
-                        _, done, total, batch_idx, batches = event
-                        pct = int(done * 100 / total) if total else 0
-                        yield _progress(
-                            done,
-                            total,
-                            f"翻译进度 {done}/{total} 行（第 {batch_idx}/{batches} 批，{pct}%）",
-                        )
-                    elif event[0] == "thought":
-                        yield event[1]
-                    elif event[0] == "batch":
-                        start, batch = event[1], event[2]
-                        for offset, text in enumerate(batch):
-                            translations[start + offset] = text
+                with wiki_franchise_scope(franchise_hints):
+                    async for event in translate_lines_streaming(
+                        lines, video_context=video_context, glossary_block=glossary_block
+                    ):
+                        if event[0] == "progress":
+                            _, done, total, batch_idx, batches = event
+                            pct = int(done * 100 / total) if total else 0
+                            yield _progress(
+                                done,
+                                total,
+                                f"翻译进度 {done}/{total} 行（第 {batch_idx}/{batches} 批，{pct}%）",
+                            )
+                        elif event[0] == "thought":
+                            yield event[1]
+                        elif event[0] == "batch":
+                            start, batch = event[1], event[2]
+                            for offset, text in enumerate(batch):
+                                translations[start + offset] = text
 
-                repaired = await _repair_translations(
-                    lines, translations, video_context, glossary_block
-                )
-                if repaired:
-                    yield _thought(f"\n【SRT 导出】补译完成，修复 {repaired} 条漏翻字幕。\n")
+                    repaired = await _repair_translations(
+                        lines, translations, video_context, glossary_block
+                    )
+                    if repaired:
+                        yield _thought(f"\n【SRT 导出】补译完成，修复 {repaired} 条漏翻字幕。\n")
 
             srt_content = _build_srt(snippets, translations)
             filename = f"{video_id}_zh.srt"
